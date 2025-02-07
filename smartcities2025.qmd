@@ -1,0 +1,41 @@
+---
+title: "The impact of smart city development on the perception of quality of life"
+author: "Nicholas Victor Julius ALEXANDER, 
+Emilia ȚIȚAN, 
+Claudiu HERȚELIU"
+date: last-modified
+date-format: "[Last Updated on] MMMM D, YYYY, kk:mm UTC"
+mainfont: Times New Roman
+sansfont: Times New Roman
+fontsize: 12pt
+papersize: a4
+keep-tex: false
+execute:
+  enabled: true
+  echo: false
+csl: formattingaids/Chicago.csl
+toc: false
+lof: false
+lot: false
+citecolor: black
+linkcolor: black
+urlcolor: black
+bibliography: references.bib
+link-citations: true
+biblio-style: unsrt
+format:
+  pdf:
+    engine: knitr
+    include-in-header:
+      - formattingaids/in-header.tex
+---
+
+Smart City Development (SCD) is one of the most prevalent paradigms in urban planning in the developed world, emerging as a response to post-industrial demographic transformations. In developed countries, including the United States, urban population declined from the from the 1930s until the 1990s, owing to the demographic decline of populations born in these cities and the loss of many jobs requiring physical presence in urban areas. But, unexpectedly, the Shrinking Cities transformation stopped and urban populations are once again increasing. On the other hand, in developing countries, there are large demographic shifts from rural to urban environments, thus replicating the earlier transition experienced by the developed world in the early 20th century.
+
+There is concern that an increase in urban densities could lead to a loss of quality of life (QoL), as witnessed in the 19th and early 20th century. Recent cross-sectional observational studies indicate an inverse correlation between subjective well-being and population density in US cities. On the other hand, similar studies conducted in Western Europe or focused on specific age cohorts suggest that this inverse correlation is not universally present. There are several attempts to explain this discrepancy, including Type II statistical errors, or epoch-specific idiosyncrasies within each sample.
+
+A third hypothesis attributes the difference between American and European density - QoL relationship to cultural differences, as captured by the witticism "Americans live to work, while Europeans work to live." This approach suggests that social structures facilitate Europeans' higher tolerance for increased demographic density. A relevant corollary would be that policies allowing Americans to live similarly to Western Europeans could improve the formers' perception of high urban density.
+
+SCD can be seen as a generalization of this principle. Experts from both sides of the Atlantic believe that cities with shorter distances between key locations, public spaces facilitating social interactions, accessible public transport, and green spaces tend to provide a better QoL at the same objective level of demographic density, compared to cities developed around the personal automobile or gated communities. Furthermore, they argue that an active effort to reshape cities from an individualistic to a more community-focused model would enhance urban residents' QoL.
+
+This trend toward community-oriented urbanism is generally linked to the belief that the introduction of newly available technologies, such as real-time monitoring, may counter potential urban decline that could follow urban crowding. Within this framework, the European Commission (EC) has defined the smart city as a place where traditional services and networks are enhanced by modern telecommunications technologies. Among the goals set by the EC for developing smart cities are efficient resource use, pollution minimization, improved availability of public transportation, safe drinking water and sanitation infrastructure, nergy-efficient lighting and heating, and faiclilptimization of public-authority interactions In short, the European understanding of SCD stresses QoL improvement.
