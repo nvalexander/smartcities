@@ -70,46 +70,6 @@
 \fi
 \makeatother
 
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\usepackage{framed}
-\definecolor{shadecolor}{RGB}{241,243,245}
-\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
-\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
@@ -280,7 +240,7 @@ on quality of life in the United States}
 University for Economic Studies}
 
 
-\date{Last Updated on April 27, 2025, 15:29 UTC}
+\date{Last Updated on April 27, 2025, 21:49 UTC}
 \begin{document}
 \maketitle
 
@@ -434,13 +394,13 @@ intercultural axiological differences.
 H1. SCD metrics from IESE and IMD have a strong degree of correlation,
 indicating that they measure similar concepts.
 
-H2. Domain SCD metrics for a city are largely correlated, indicating
-that local authorities pursue systemic rather than domain-specific
-improvements.
-
-H3. SCD metrics from the same group of experts are correlated over time,
+H2. SCD metrics from the same group of experts are correlated over time,
 indicating that local authorities show a persistent interest (or lack of
 interest) in SCD.
+
+H3. Domain SCD metrics for a city are largely correlated, indicating
+that local authorities pursue systemic rather than domain-specific
+improvements.
 
 H4. QoL metrics from USNW and Number.com have a strong degree of
 correlation, indicating that they measure similar concepts.
@@ -468,25 +428,26 @@ Structures and Technologies supporting SCD. The latter assesses five
 domains: governance, health and safety, mobility, professional
 development opportunities, and leisure activities (copied from Bris et
 al. (\citeproc{ref-BrisIMDSmartCity2023}{2023}) in Supplemental Table
-1). The IMD methodology has been significantly changed several times,
-thus limiting the usefulness of its stability across time. The number of
-respondents is not specified, but it is stated to be representative. IMD
-data were semi-automatically transcribed from the document available at
-imd.org.
+1). Although the IMD report provides rankings and score from past years,
+the IMD methodology has changed repeatedly and significantly, making
+time series analysis less reliable. The number of respondents is not
+specified, but it is stated to be representative. IMD data were
+semi-automatically transcribed from the document available at imd.org.
 
-The SCD indicators obtained from IESE include solely a score and a rank.
-However, correlation between IESE scores with IMD scores would be
-supportive for the notion of a relative agreement among experts, with
-regards to SCD metrics. Moreover, IESE criteria have been rather
-invariable, making IESE rankings useful in evaluation of eventual
-chronologic trends with regards to expert-generated SCD rankings. In
-2024, the IESE criteria covered nine domains, namely human capital,
-social cohesion, economy, governance, environment, mobility,
-international profile, urban planning, and technology (copied from
-Berrone et al. (\citeproc{ref-BerroneIESECitiesMotion2024}{2024}) in
-Supplemental Table 2). The IESE overall rankings and scores data were
-transcribed semi-automatically from documents published at iese.edu, and
-cover 8 US cities assessed in IESE Cities in Motion 2014 (Berrone et al.
+The SCD indicators obtained from IESE include solely a score (Cities in
+Motion Index, CIMI) and rankings based on that score. However,
+correlation between IESE scores with IMD scores would be supportive for
+the notion of a relative agreement among experts, with regards to SCD
+metrics. Moreover, IESE criteria have been rather invariable, making
+IESE rankings useful in evaluation of eventual chronologic trends with
+regards to expert-generated SCD rankings. In 2024, the IESE criteria
+covered nine domains, namely human capital, social cohesion, economy,
+governance, environment, mobility, international profile, urban
+planning, and technology (copied from Berrone et al.
+(\citeproc{ref-BerroneIESECitiesMotion2024}{2024}) in Supplemental Table
+2). The IESE overall rankings and scores data were transcribed
+semi-automatically from documents published at iese.edu, and cover 8 US
+cities assessed in IESE Cities in Motion 2014 (Berrone et al.
 (\citeproc{ref-BerroneIESECitiesMotion2014}{2014})), as well as 19 US
 cities in IESE Cities in Motion 2024 (Berrone et al.
 (\citeproc{ref-BerroneIESECitiesMotion2024}{2024})).
@@ -523,113 +484,136 @@ York Times (Kugel (\citeproc{ref-KugelThingsYouCan2016}{2016})). We
 manually collected overall QoL scores, as well as scores for its eight
 dimensions, from numbeo.com, as displayed in April 2024.
 
+Manually-loaded data was pasted in LibreOffice Calc 25.2.2, and the
+resulting raw spreadsheet has been shared at TODO. Subsequently, data
+was imported in VSCode 1.99.3, processed and analyzed with R 4.2.2 (R
+Core Team
+(\citeproc{ref-RCoreTeamlanguageenvironmentstatistical2021}{2021})), and
+typeset with Quarto 1.7.29. Data wrangling and visualization relied on
+the tidyverse R library, version 2.0.0 (Wickham et al.
+(\citeproc{ref-tidyverse2019}{2019})).
+
 Although USNW and Numbeo.com provide QoL ratings for hundreds and,
 respectively thousands of US cities, the number of cities ranked by IESE
-and IMD is typically around 100 across the world. For teh most part we
+and IMD is typically around 100 across the world. For the most part we
 analyzed data for all the 19 US cities featured the IESE 2024 rankings,
 but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia)
-were assessed in all three reports used for this study.
+were assessed in all three reports used for this study. A set of 76
+variables were obtained, including 59 metrics of SDC from IMD, 4 SCD
+metrics from IESE, 9 QoL metrics from Numbeo.com, 2 QoL metrics from
+USNW, and a control variable (overall USNW score).
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(readxl)}
-\FunctionTok{library}\NormalTok{(dplyr)}
-\end{Highlighting}
-\end{Shaded}
+Among the 75 relevant variables 40\% of the data was missing.
+Missingness ranged from 13 variables with fewer than 10\% missing data
+to 3 varaibles from IEsE 2014 with more than 50\% missingness. The
+overall mean skewness was low (mean absolute skewness 0.07), suggesting
+limited departure from normality. Within the SCD-related variable set,
+17.2\% of pairs had an absolute Pearson correlation greater than 0.7,
+suggestign some redundancy among predictors. Among QoL-related
+variables, 3.6\% of pairs exceeded this threshold, indicating minimal
+multicollinearity.
 
-\begin{verbatim}
+\section{Results}\label{results}
 
-Attaching package: 'dplyr'
-\end{verbatim}
+\subsection{IESE and IMD rankings evaluate similar
+constructs}\label{iese-and-imd-rankings-evaluate-similar-constructs}
 
-\begin{verbatim}
-The following objects are masked from 'package:stats':
+Normality of the IESE 2024 and IMD 2023 ranks was assessed using
+Shapiro-Wilk tests, which indicated no significant deviation from
+normality (p = 0.161 and p = 0.664, respectively). The IESE composite
+score, however, showed significant non-normality (p = 1.09e-04).
+Accordingly, Pearson correlation was used to assess the association
+between IESE and IMD rankings. The positive correlation was strong (r =
+0.73, p = 0.016, df = 17).
 
-    filter, lag
-\end{verbatim}
+\begin{figure}[H]
 
-\begin{verbatim}
-The following objects are masked from 'package:base':
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/imdvsiese-1.pdf}}
 
-    intersect, setdiff, setequal, union
-\end{verbatim}
+}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(stringr)}
-\FunctionTok{library}\NormalTok{(purrr)}
-\FunctionTok{library}\NormalTok{(tidyr)}
+\caption{Scatterplots illustrating the correlation between IMD 2023
+rankings and IESE 2024 indicators.}
 
-\CommentTok{\# List only sheets ending in IMD}
-\NormalTok{sheets }\OtherTok{\textless{}{-}} \FunctionTok{excel\_sheets}\NormalTok{(}\StringTok{"data/rawdata.xlsx"}\NormalTok{)}
-\NormalTok{imd\_sheets }\OtherTok{\textless{}{-}}\NormalTok{ sheets[}\FunctionTok{str\_ends}\NormalTok{(sheets, }\StringTok{"IMD"}\NormalTok{)]}
+\end{figure}%
 
-\CommentTok{\# Function to extract last positive number from first column}
-\NormalTok{extract\_percents }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sheet) \{}
-\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"data/rawdata.xlsx"}\NormalTok{, }\AttributeTok{sheet =}\NormalTok{ sheet)}
-\NormalTok{  first\_col }\OtherTok{\textless{}{-}}\NormalTok{ df[[}\DecValTok{1}\NormalTok{]]  }\CommentTok{\# Take the actual first column, whatever its name}
-  \FunctionTok{tibble}\NormalTok{(}\AttributeTok{percent =} \FunctionTok{str\_extract}\NormalTok{(first\_col, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.?}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d*$"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
-    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{percent =} \FunctionTok{as.numeric}\NormalTok{(percent)) }\SpecialCharTok{\%\textgreater{}\%}
-    \FunctionTok{pull}\NormalTok{(percent)}
-\NormalTok{\}}
+Figure 1 illustrates the non-normality of IESE CIMI scores, introduced
+by the much higher score attributed to New York. . Given the
+non-normality of the IESE composite score, Spearman's rho was used to
+assess its association with the IMD ranking. The rank-based correlation
+was -0.53 (p = 0.123, df = 17). Although the latter test was not
+statistically significant, the former test indicates that IESE and IMD
+rankings capture broadly similar dimensions.
 
-\CommentTok{\# Apply to each sheet}
-\NormalTok{results }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(imd\_sheets, extract\_percents)}
-\end{Highlighting}
-\end{Shaded}
+\subsection{Expert SCD ratings are stable in
+time}\label{expert-scd-ratings-are-stable-in-time}
 
-\begin{verbatim}
-New names:
-* `` -> `...2`
-* `` -> `...3`
-\end{verbatim}
+Pairwise Pearson correlation analysis between consecutive IMD reports
+indicate stability of IMD rankings over time. The correlation between
+2019 and 2020 was high (r = 0.78, p = 0.013), as was the correlation
+between 2020 and 2021 (r = 0.97, p = 3.04e-06), and between 2021 and
+2023 (r = 0.97, 5.74e-06). To summarize the overall consistency across
+years, we computed the intraclass correlation coefficient (ICC), using a
+one-way random-effects model. The ICC was 0.77, significantly greater
+than zero (F(8, 27) = 14, p = 8.18e-08), with a 95\% confidence interval
+ranging from 0.51 to 0.93. These results suggest a strong persistence of
+relative city rankings across the observed period.
 
-\begin{verbatim}
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-* `` -> `...2`
-* `` -> `...3`
-\end{verbatim}
+\begin{figure}[H]
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Bind all results into one dataframe}
-\NormalTok{results\_df }\OtherTok{\textless{}{-}}\NormalTok{ results }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{set\_names}\NormalTok{(imd\_sheets) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{bind\_rows}\NormalTok{(}\AttributeTok{.id =} \StringTok{"City"}\NormalTok{)}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/imdintime-1.pdf}}
 
-\CommentTok{\# Rename columns generically}
-\FunctionTok{colnames}\NormalTok{(results\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"City"}\NormalTok{, }\FunctionTok{paste0}\NormalTok{(}\StringTok{"column "}\NormalTok{, }\FunctionTok{sprintf}\NormalTok{(}\StringTok{"\%02d"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{ncol}\NormalTok{(results\_df)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)), }\StringTok{" IMD"}\NormalTok{))}
+}
 
-\NormalTok{results\_df}
-\end{Highlighting}
-\end{Shaded}
+\caption{Trajectories of IMD Smart City rankings for each city
+(2019--2023)}
 
-\begin{verbatim}
-# A tibble: 64 x 10
-    City `column 01 IMD` `column 02 IMD` `column 03 IMD` `column 04 IMD`
-   <dbl>           <dbl>           <dbl>           <dbl>           <dbl>
- 1    NA              NA              NA              NA              NA
- 2    NA              NA              NA              NA              NA
- 3    NA              NA              NA              NA              NA
- 4    NA              NA              NA              NA              NA
- 5    NA              NA              NA              NA              NA
- 6    NA              NA              NA              NA              NA
- 7    NA              NA              NA              NA              NA
- 8    NA              NA              NA              NA              NA
- 9    NA              NA              NA              NA              NA
-10    NA              NA              NA              NA              NA
-# i 54 more rows
-# i 5 more variables: `column 05 IMD` <dbl>, `column 06 IMD` <dbl>,
-#   `column 07 IMD` <dbl>, `column 08 IMD` <dbl>, `column 09 IMD` <dbl>
-\end{verbatim}
+\end{figure}%
+
+In addition to the statistical analysis, a plot of IMD ranks across the
+four timepoints (Fig. 2) supports the notion of stable rankings, with
+the general decreasing tend explained by the addition of non-US cities
+that rank extremely well by IMD metrics (Canberra, Wellington,
+Reykjavik, Lausanne), in a manner that does not affect the US
+hierarachy.
+
+\subsection{SCD ratings components correlate moderate between domains,
+with the exception of reported
+Concerns}\label{scd-ratings-components-correlate-moderate-between-domains-with-the-exception-of-reported-concerns}
+
+Surprisingly, in the IMD survey, which provides domain metrics, not all
+of the four components of the SCD assessement correlate well between
+cities. Specifically, Pearson correlation analysis did not support a
+correlation between HDI and the sum of IMD Technologies indicators (r =
+0.27, p = 0.455). In contrast, the correlation between HDI and the sum
+of IMD Structures indicators was r = 0.62, p = 0.058. The correlation
+between IMD Technologies and IMD Structures was r = 0.61, p = 0.063.
+
+Of note, the IMD Concerns sum significantly from normality (p = 0.018),
+unlike the other three IMD domains. Therefore, for associations
+involving the non-normally distributed IMD Concerns sum, Spearman
+correlations were used instead. Evidence of a correlation between HDI
+and IMD Concerns was found using Spearman's method (ρ = -0.71, p =
+0.02). On the other hand, there was no evidence for an association
+between Technologies and Concerns (ρ = -0.46, p = 0.184), nor for the
+association between Structures and Concerns (ρ = -0.57, p = 0.083).
+
+A plot of these potential correlation (Fig. 3) indicates confirms that
+IMD Concerns scores are not normally distributed, with an extremely low
+sum of Concerns indicators for Denver. Nevertheless, Denver's exclusion
+fails to improve statistical significance between the sum of IMD
+Concerns indicators and the other domain indicator sums (data not
+shown).
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/imdcomponentsplot-1.pdf}}
+
+}
+
+\caption{Correlations between IMD Smart City score domains}
+
+\end{figure}%
 
 \section{Discussions}\label{discussions}
 
@@ -1427,6 +1411,11 @@ Okulicz-Kozaryn, Adam, and Rubia R. Valente. 2019. {``No Urban Malaise
 for {Millennials}.''} \emph{Regional Studies}, February.
 \url{https://www.tandfonline.com/doi/abs/10.1080/00343404.2018.1453130}.
 
+\bibitem[\citeproctext]{ref-RCoreTeamlanguageenvironmentstatistical2021}
+R Core Team. 2021. {``R: {A} Language and Environment for Statistical
+Computing.''} R Foundation for Statistical Computing, Vienna, Austria.
+2021. \url{http://www.r-project.org/index.html}.
+
 \bibitem[\citeproctext]{ref-Samuelspollutedlifehighway2022}
 Samuels, Gabe, and Yonah Freemark. 2022. {``The Polluted Life Near the
 Highway. {A} Review of National Scholarship and a {Louisville} Case
@@ -1455,6 +1444,12 @@ Wang, Mengmeng, and Tao Zhou. 2023. {``Does Smart City Implementation
 Improve the Subjective Quality of Life? {Evidence} from {China}.''}
 \emph{Technology in Society} 72 (February):102161.
 \url{https://doi.org/10/gtr4sj}.
+
+\bibitem[\citeproctext]{ref-tidyverse2019}
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D'Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+{``Welcome to the Tidyverse.''} \emph{Journal of Open Source Software} 4
+(43): 1686. \url{https://doi.org/10.21105/joss.01686}.
 
 \bibitem[\citeproctext]{ref-WintersUrbanisationnaturalamenities2016}
 Winters, John V., and Yu Li. 2016. {``Urbanisation, Natural Amenities

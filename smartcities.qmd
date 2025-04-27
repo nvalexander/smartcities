@@ -11,7 +11,6 @@ author:
 affiliations: 
   - id: 1
     name: "Department of Statistics and Econometrics, Bucharest University for Economic Studies"
-#author-title: "Author"
 date: last-modified
 date-format: "[Last Updated on] MMMM D, YYYY, kk:mm UTC"
 documentclass: scrartcl
@@ -74,9 +73,9 @@ In this study, we analyze quantitatively the correlation between the SCD and QoL
 
 H1. SCD metrics from IESE and IMD have a strong degree of correlation, indicating that they measure similar concepts.
 
-H2. Domain SCD metrics for a city are largely correlated, indicating that local authorities pursue systemic rather than domain-specific improvements.
+H2. SCD metrics from the same group of experts are correlated over time, indicating that local authorities show a persistent interest (or lack of interest) in SCD.
 
-H3. SCD metrics from the same group of experts are correlated over time, indicating that local authorities show a persistent interest (or lack of interest) in SCD.
+H3. Domain SCD metrics for a city are largely correlated, indicating that local authorities pursue systemic rather than domain-specific improvements.
 
 H4. QoL metrics from USNW and Number.com have a strong degree of correlation, indicating that they measure similar concepts.
 
@@ -88,66 +87,27 @@ H6. The correlation between QoL metrics and SCD metrics is domain-specific, with
 
 ## Data acquisition and processing
 
-Ten US cities were evaluated in the most recent wave of the IMD Smart Cities Index, in 2023 (@BrisIMDSmartCity2023). The IMD data include an estimate of the Human Development Index (HDI) at city level, a survey on the top five Concerns of the resident population, and a survey on the Structures and Technologies supporting SCD. The latter assesses five domains: governance, health and safety, mobility, professional development opportunities, and leisure activities (copied from @BrisIMDSmartCity2023 in Supplemental Table 1). The IMD methodology has been significantly changed several times, thus limiting the usefulness of its stability across time. The number of respondents is not specified, but it is stated to be representative. IMD data were semi-automatically transcribed from the document available at imd.org.
+Ten US cities were evaluated in the most recent wave of the IMD Smart Cities Index, in 2023 (@BrisIMDSmartCity2023). The IMD data include an estimate of the Human Development Index (HDI) at city level, a survey on the top five Concerns of the resident population, and a survey on the Structures and Technologies supporting SCD. The latter assesses five domains: governance, health and safety, mobility, professional development opportunities, and leisure activities (copied from @BrisIMDSmartCity2023 in Supplemental Table 1). Although the IMD report provides rankings and score from past years, the IMD methodology has changed repeatedly and significantly, making time series analysis less reliable. The number of respondents is not specified, but it is stated to be representative. IMD data were semi-automatically transcribed from the document available at imd.org.
 
-The SCD indicators obtained from IESE include solely a score and a rank. However, correlation between IESE scores with IMD scores would be supportive for the notion of a relative agreement among experts, with regards to SCD metrics. Moreover, IESE criteria have been rather invariable, making IESE rankings useful in evaluation of eventual chronologic trends with regards to expert-generated SCD rankings. In 2024, the IESE criteria covered nine domains, namely human capital, social cohesion, economy, governance, environment, mobility, international profile, urban planning, and technology (copied from @BerroneIESECitiesMotion2024 in Supplemental Table 2). The IESE overall rankings and scores data were transcribed semi-automatically from documents published at iese.edu, and cover 8 US cities assessed in IESE Cities in Motion 2014 (@BerroneIESECitiesMotion2014), as well as 19 US cities in IESE Cities in Motion 2024 (@BerroneIESECitiesMotion2024). 
+The SCD indicators obtained from IESE include solely a score (Cities in Motion Index, CIMI) and rankings based on that score. However, correlation between IESE scores with IMD scores would be supportive for the notion of a relative agreement among experts, with regards to SCD metrics. Moreover, IESE criteria have been rather invariable, making IESE rankings useful in evaluation of eventual chronologic trends with regards to expert-generated SCD rankings. In 2024, the IESE criteria covered nine domains, namely human capital, social cohesion, economy, governance, environment, mobility, international profile, urban planning, and technology (copied from @BerroneIESECitiesMotion2024 in Supplemental Table 2). The IESE overall rankings and scores data were transcribed semi-automatically from documents published at iese.edu, and cover 8 US cities assessed in IESE Cities in Motion 2014 (@BerroneIESECitiesMotion2014), as well as 19 US cities in IESE Cities in Motion 2024 (@BerroneIESECitiesMotion2024). 
 
 For QoL, we used USNW rankings, compiled by experts for over fifty years and highly influential in shaping American public perception (@Bloom25Citiesbest2024). In the Best Places to Live 2023-2024 rankings, QoL scores comprise 36% of the overal desirability score of a city. QoL scores are computed from metrics of subjective well-being, crime rates, education quality, commute quality, environment quality, and quality of healthcare services, with weights derived from US surveys (copied from @Howwerank2024 in Supplemental Table 3). USNW does not publish domain-specific QoL metrics. The overall QoL score was manually extracted from the Best Places to Live and Retire 2023 ranking (@BestPlacesLive2023), available at usnews.com.
 
 Since 2009, Numbeo.com has hosted a web platform where self-selected, anonymous users, authenticating with their email address, may rate cities acrss the world, based on criteria such as cost of living, cost of housing  as a proportion of income, safety, healthcare services, climate, pollution, and commute burden. Although there are concerns regarding data quality, as with any internet-based survey, each of the studied cities has over 200 reviews, which reduces the impact of malicious responses. Moreover, in addition to survey data, Numbeo also incorporates a few official public data in the calculation of its composite indices (detailed, based on, in Supplemental Table 4). Numbeo is considered the best available source, especially for local prices, by major media outlets such as The Economist (@LStaletwoecosystems2013), Forbes (@BarrettInvestigateYouExpatriate2010), and The New York Times (@KugelThingsYouCan2016). We manually collected overall QoL scores, as well as scores for its eight dimensions, from numbeo.com, as displayed in April 2024. 
 
-Although USNW and Numbeo.com provide QoL ratings for hundreds and, respectively thousands of US cities, the number of cities ranked by IESE and IMD is typically around 100 across the world. For teh most part we analyzed data for all the 19 US cities featured the IESE 2024 rankings, but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia) were assessed in all three reports used for this study.
+Manually-loaded data was pasted in LibreOffice Calc 25.2.2, and the resulting raw spreadsheet has been shared at TODO. Subsequently, data was imported in VSCode 1.99.3, processed and analyzed with R `r getRversion()` (@RCoreTeamlanguageenvironmentstatistical2021), and typeset with Quarto `r quarto::quarto_version()`. Data wrangling and visualization relied on the tidyverse R library, version `r as.character(packageVersion("tidyverse"))` (@tidyverse2019).
 
-
-```{r}
+```{r loadingdata,echo=FALSE}
 suppressPackageStartupMessages({
+  library(tidyverse)
   library(readxl)
-  library(dplyr)
-  library(stringr)
-  library(purrr)
+  library(ggrepel)
+  library(ggplot2)
+  library(patchwork)
+  library(irr)
 })
 
-rawfile <- "data/rawdata.xlsx"
-rawsheets <- excel_sheets(rawfile)
-imdsheets <- rawsheets[str_ends(rawsheets, "IMD")]
-
-extract_percents_imd <- function(sheet) {
-  df <- suppressMessages(
-    read_excel(
-      rawfile, 
-      sheet = sheet, 
-      range = "A1:A65", 
-      col_names = "text"
-    )
-  )
-  numbers <- str_extract_all(
-    df$text,
-    "\\d+\\.?\\d*%?"
-  )
-  last_numbers <- map_chr(
-    numbers,
-    ~if(length(.x) > 0) .x[length(.x)] else NA_character_
-  )
-  last_numbers <- str_remove(last_numbers, "%")
-  as.numeric(last_numbers)
-}
-
-imdcomponents <- map(imdsheets, extract_percents_imd)
-max_len_imdvector <- max(map_int(imdcomponents, length))
-imdcomponents <- map(
-  imdcomponents,
-  ~{ length(.x) <- max_len_imdvector; .x }
-)
-col_names_imd <- paste0("column ", sprintf("%02d", 1:max_len_imdvector), " IMD")
-
-imdcomponents <- imdcomponents %>%
-  map(~ set_names(as.numeric(.x), col_names_imd)) %>%
-  bind_rows() %>%
-  mutate(City = str_remove(imdsheets, " IMD"), .before = 1) %>%
-  select(-c(2, 18, 25, 28, 31, 37, 42, 49, 55, 57, 62))
-
-colnames(imdcomponents) <- c(
-  "City",
+imd_concerns_vars <- c(
   "affordable housing",
   "air pollution",
   "basic amenities",
@@ -162,7 +122,10 @@ colnames(imdcomponents) <- c(
   "school education",
   "security",
   "social mobility",
-  "unemployment",
+  "unemployment"
+)
+
+imd_structures_vars <- c(
   "Basic sanitation meets the needs of the poorest areas",
   "Recycling services are satisfactory",
   "Public safety is not a problem",
@@ -181,7 +144,10 @@ colnames(imdcomponents) <- c(
   "Information on local government decisions are easily accessible",
   "Corruption of city officials is not an issue of concern",
   "Residents contribute to decision making of local government",
-  "Residents provide feedback on local government projects",
+  "Residents provide feedback on local government projects"
+)
+
+imd_technologies_vars <- c(
   "Online reporting of city maintenance problems provides a speedy solution",
   "A website or App allows residents to easily give away unwanted items",
   "Free public wifi has improved access to city services",
@@ -204,19 +170,405 @@ colnames(imdcomponents) <- c(
   "Processing Identification Documents online has reduced waiting times"
 )
 
+numbeo_component_vars <- c(
+  "Numbeo.com Purchasing Power Index",
+  "Numbeo.com Safety Index",
+  "Numbeo.com Health Care Index",
+  "Numbeo.com Climate Index",
+  "Numbeo.com Cost of Living Index",
+  "Numbeo.com Property Price to Income Ratio",
+  "Numbeo.com Traffic Commute Time Index",
+  "Numbeo.com Pollution Index"
+)
+
+rawfile <- "data/rawdata.xlsx"
+
+imdcomponents <- excel_sheets(rawfile) %>%
+  keep(~ str_ends(.x, "IMD")) %>%
+  { sheets <- .; 
+    map(sheets, ~ suppressMessages(
+      read_excel(rawfile, sheet = .x, range = "A1:A65", col_names = "text")
+    ) %>%
+      pull(text) %>%
+      str_extract_all("\\d+\\.?\\d*%?") %>%
+      map_chr(~ if(length(.x) > 0) .x[length(.x)] else NA_character_) %>%
+      str_remove("%") %>%
+      as.numeric()
+    ) %>%
+    { vectors <- .; 
+      max_len <- max(map_int(vectors, length))
+      vectors_padded <- map(vectors, ~{ length(.x) <- max_len; .x })
+      col_names <- paste0("column ", sprintf("%02d", 1:max_len), " IMD")
+      vectors_padded %>%
+        map(~ set_names(.x, col_names)) %>%
+        bind_rows() %>%
+        mutate(City = str_remove(sheets, " IMD"), .before = 1)
+    }
+  } %>%
+  select(-c(2, 18, 25, 28, 31, 37, 42, 49, 55, 57, 62)) %>%
+  setNames(c(
+    "City",
+    imd_concerns_vars,
+    imd_structures_vars,
+    imd_technologies_vars
+  ))
+
 imdranks <- read_excel(
   rawfile,
   sheet = "IMDpivot",
   range = "A1:F11",
   col_names = TRUE
-) %>% rename_with(~ str_replace_all(., "\\s+", "_"))
+) %>% rename_with(~ str_replace_all(., "\\s+", ""))
 
-imddata <- imdcomponents %>%
-  left_join(imdranks, by = "City")
+iese2014data <- excel_sheets(rawfile) %>%
+  keep(~ str_starts(., "IESE2014raw")) %>%
+  map(~ read_excel(
+    rawfile,
+    sheet = .x,
+    range = cell_cols("A"),
+    col_types = "text",
+    col_names = "value"
+  ) %>% pull(value)) %>%
+  flatten_chr() %>%
+  matrix(ncol = 4, byrow = TRUE) %>%
+  as_tibble(.name_repair = "minimal") %>%
+  setNames(c("RankIESE2014", "City", "Performance", "CIMI2014")) %>%
+  filter(str_detect(RankIESE2014, "^\\d+\\.?0?$")) %>%
+  filter(str_starts(City, "USA-")) %>%
+  select(-c("Performance")) %>%
+  mutate(
+    RankIESE2014 = as.numeric(RankIESE2014),
+    CIMI2014 = as.numeric(str_replace(CIMI2014, ",", ".")),
+    City = str_replace(City, "USA-", "")
+  )
+
+iese2024data <- excel_sheets(rawfile) %>%
+  keep(~ str_starts(., "IESE2024raw")) %>%
+  map(~ read_excel(
+    rawfile,
+    sheet = .x,
+    range = cell_cols("A"),
+    col_types = "text",
+    col_names = "value"
+  ) %>% pull(value)) %>%
+  flatten_chr() %>%
+  matrix(ncol = 4, byrow = TRUE) %>%
+  as_tibble(.name_repair = "minimal") %>%
+  setNames(c("RankIESE2024", "City", "Performance", "CIMI2024")) %>%
+  filter(str_detect(RankIESE2024, "^\\d+\\.?0?$")) %>%
+  filter(str_ends(City, " ‐ USA")) %>%
+  select(-c("Performance")) %>%
+  mutate(
+    RankIESE2024 = as.numeric(RankIESE2024),
+    CIMI2024 = as.numeric(str_replace(CIMI2024, ",", ".")),
+    City = str_replace(City, " ‐ USA", "")
+  )
+
+numbeocomponents <- excel_sheets(rawfile) %>%
+  keep(~ str_ends(.x, "numbeo")) %>%
+  { sheets <- .;
+    map(sheets, ~ suppressMessages(
+      read_excel(rawfile, sheet = .x, range = "B1:B10", col_names = "value")
+    ) %>%
+      pull(value) %>%
+      .[-9]
+    ) %>%
+    { vectors <- .;
+      vectors %>%
+        map(~ set_names(.x, c(
+          numbeo_component_vars,
+          "Numbeo.com QoL Score"
+        ))) %>%
+        bind_rows() %>%
+        mutate(City = str_remove(sheets, " numbeo$"), .before = 1)
+    }
+  }
+
+usnewsranks <- read_excel(
+  rawfile,
+  sheet = "USNews",
+  range = "A1:D20",
+  col_names = TRUE
+) %>% rename_with(~ str_replace_all(., "\\s+", ""))
+
+
+alldata <- iese2024data %>%
+  left_join(iese2014data, by = "City") %>%
+  left_join(imdranks, by = "City") %>%
+  left_join(imdcomponents, by = "City") %>%
+  left_join(usnewsranks, by = "City") %>%
+  left_join(numbeocomponents, by = "City")%>%
+  mutate(across(-City, ~ as.numeric(.))) %>%
+  mutate(
+    IMD_Concerns_Sum = rowSums(select(., all_of(imd_concerns_vars))),
+    IMD_Structures_Sum = rowSums(select(., all_of(imd_structures_vars))),
+    IMD_Technologies_Sum = rowSums(select(., all_of(imd_technologies_vars)))
+  ) %>%
+  select(
+    City, 
+    setdiff(names(.), c("City", "ScoreUSNewsoverall")),
+    ScoreUSNewsoverall
+  )
 
 ```
 
+Although USNW and Numbeo.com provide QoL ratings for hundreds and, respectively thousands of US cities, the number of cities ranked by IESE and IMD is typically around 100 across the world. For the most part we analyzed data for all the 19 US cities featured the IESE 2024 rankings, but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia) were assessed in all three reports used for this study. A set of 76 variables were obtained, including 59 metrics of SDC from IMD, 4 SCD metrics from IESE, 9 QoL metrics from Numbeo.com, 2 QoL metrics from USNW, and a control variable (overall USNW score).
+```{r qc,echo=FALSE}
 
+data_qc <- alldata %>% select(-City, -ScoreUSNewsoverall)
+
+n_vars <- ncol(data_qc)
+n_obs <- nrow(data_qc)
+missing_summary <- data_qc %>% summarise(across(everything(), ~ mean(is.na(.)))) %>% pivot_longer(everything())
+
+prop_missing_overall <- mean(is.na(data_qc))
+vars_lt10pct_missing <- sum(missing_summary$value < 0.10)
+vars_gt50pct_missing <- sum(missing_summary$value > 0.50)
+
+distribution_summary <- data_qc %>% 
+  summarise(across(where(is.numeric), list(skewness = ~ e1071::skewness(., na.rm = TRUE)))) %>% 
+  pivot_longer(everything())
+
+cause_vars <- data_qc %>% select(-all_of(c(
+  "RankUSNews",
+  "ScoreUSNewsQoL",
+  numbeo_component_vars,
+  "Numbeo.com QoL Score"
+)))
+
+effect_vars <- data_qc %>% select(all_of(c(
+  "RankUSNews",
+  "ScoreUSNewsQoL",
+  numbeo_component_vars,
+  "Numbeo.com QoL Score"
+)))
+
+cause_cor <- cor(cause_vars, use = "pairwise.complete.obs")
+effect_cor <- cor(effect_vars, use = "pairwise.complete.obs")
+
+get_upper_tri <- function(cormat) {
+  cormat[lower.tri(cormat, diag = TRUE)] <- NA
+  cormat
+}
+
+cause_r_values <- get_upper_tri(cause_cor) %>% as.vector() %>% discard(is.na)
+effect_r_values <- get_upper_tri(effect_cor) %>% as.vector() %>% discard(is.na)
+
+cause_high_corr_pct <- mean(abs(cause_r_values) > 0.7) * 100
+effect_high_corr_pct <- mean(abs(effect_r_values) > 0.7) * 100
+
+
+```
+
+Among the 75 relevant variables `r scales::percent(prop_missing_overall)` of the data was missing. Missingness ranged from `r vars_lt10pct_missing` variables with fewer than 10% missing data to `r vars_gt50pct_missing` varaibles from IEsE 2014 with more than 50% missingness. The overall mean skewness was low (mean absolute skewness `r round(mean(distribution_summary$value), 2)`), suggesting limited departure from normality. Within the SCD-related variable set, `r round(cause_high_corr_pct, 1)`% of pairs had an absolute Pearson correlation greater than 0.7, suggestign some redundancy among predictors. Among QoL-related variables, `r round(effect_high_corr_pct, 1)`% of pairs exceeded this threshold, indicating minimal multicollinearity.
+
+## Results
+
+### IESE and IMD rankings evaluate similar constructs
+
+```{r ieseimdcorr,echo=FALSE}
+
+ieserank2024 <- data_qc[["RankIESE2024"]]
+imdrank2023  <- data_qc[["RankIMD2023"]]
+iesescore2024 <- data_qc[["CIMI2024"]]
+
+pearson_imd_iese_rank <- cor.test(
+  ieserank2024, 
+  imdrank2023, 
+  method = "pearson", 
+  use = "pairwise.complete.obs"
+  )
+pearson_imd_iese_score <- cor.test(
+  iesescore2024, 
+  imdrank2023,
+  method = "pearson", 
+  use = "pairwise.complete.obs"
+  )
+
+
+spearman_imd_iese_rank <- cor.test(
+  ieserank2024, 
+  imdrank2023, 
+  method = "spearman", 
+  use = "pairwise.complete.obs"
+  )
+spearman_imd_iese_score <- cor.test(
+  iesescore2024, 
+  imdrank2023, 
+  method = "spearman", 
+  use = "pairwise.complete.obs"
+  )
+
+```
+Normality of the IESE 2024 and IMD 2023 ranks was assessed using Shapiro-Wilk tests, which indicated no significant deviation from normality (p = `r round(shapiro.test(ieserank2024)$p.value, 3)` and p = `r round(shapiro.test(imdrank2023)$p.value, 3)`, respectively). The IESE composite score, however, showed significant non-normality (p = `r formatC(shapiro.test(iesescore2024)$p.value, format = "e", digits = 2)`). Accordingly, Pearson correlation was used to assess the association between IESE and IMD rankings. The positive correlation was strong (r = `r round(pearson_imd_iese_rank$estimate, 2)`, p = `r round(pearson_imd_iese_rank$p.value, 3)`, df = `r length(na.omit(ieserank2024)) - 2`). 
+
+```{r imdvsiese,echo=FALSE, fig.cap="Scatterplots illustrating the correlation between IMD 2023 rankings and IESE 2024 indicators."}
+
+p1imdvsiese <- ggplot(
+  alldata %>% filter(!is.na(RankIMD2023), !is.na(RankIESE2024)), 
+  aes(x = RankIESE2024, y = RankIMD2023)
+  ) +
+  geom_point() +
+  labs(
+    x = "IESE 2024 Rank",
+    y = "IMD 2023 Rank"
+  )
+
+p2imdvsiese <- ggplot(
+  alldata %>% filter(!is.na(RankIMD2023), !is.na(CIMI2024)), 
+  aes(x = CIMI2024, y = RankIMD2023, label = City)
+) +
+  geom_point() +
+  geom_text_repel(size = 3) +
+  labs(
+    x = "IESE 2024 Score",
+    y = "IMD 2023 Rank"
+  )
+
+p1imdvsiese + p2imdvsiese
+```
+
+Figure 1 illustrates the non-normality of IESE CIMI scores, introduced by the much higher score attributed to New York. . Given the non-normality of the IESE composite score, Spearman's rho was used to assess its association with the IMD ranking. The rank-based correlation was `r round(spearman_imd_iese_score$estimate, 2)` (p = `r round(spearman_imd_iese_score$p.value, 3)`, df = `r length(na.omit(iesescore2024)) - 2`). Although the latter test was not statistically significant, the former test indicates that IESE and IMD rankings capture broadly similar dimensions.
+
+### Expert SCD ratings are stable in time
+```{r imdrankcorr,echo=FALSE}
+cor_imdrank_2019_2020 <- cor.test(data_qc$RankIMD2019, data_qc$RankIMD2020, method = "pearson", use = "pairwise.complete.obs")
+cor_imdrank_2020_2021 <- cor.test(data_qc$RankIMD2020, data_qc$RankIMD2021, method = "pearson", use = "pairwise.complete.obs")
+cor_imdrank_2021_2023 <- cor.test(data_qc$RankIMD2021, data_qc$RankIMD2023, method = "pearson", use = "pairwise.complete.obs")
+
+icc_imdrank_result <- icc(
+  data_qc %>% select(RankIMD2019, RankIMD2020, RankIMD2021, RankIMD2023),
+  model = "oneway",
+  type = "consistency"
+)
+```
+
+Pairwise Pearson correlation analysis between consecutive IMD reports indicate stability of IMD rankings over time. The correlation between 2019 and 2020 was high (r = `r round(cor_imdrank_2019_2020$estimate, 2)`, p = `r round(cor_imdrank_2019_2020$p.value, 3)`), as was the correlation between 2020 and 2021 (r = `r round(cor_imdrank_2020_2021$estimate, 2)`, p = `r formatC(cor_imdrank_2020_2021$p.value, format = "e", digits = 2)`), and between 2021 and 2023 (r = `r round(cor_imdrank_2021_2023$estimate, 2)`,  `r formatC(cor_imdrank_2021_2023$p.value, format = "e", digits = 2)`). To summarize the overall consistency across years, we computed the intraclass correlation coefficient (ICC), using a one-way random-effects model. The ICC was `r round(icc_imdrank_result$value, 2)`, significantly greater than zero (F(`r icc_imdrank_result$df1`, `r icc_imdrank_result$df2`) = `r round(icc_imdrank_result$Fvalue, 1)`, p = `r formatC(icc_imdrank_result$p.value, format = "e", digits = 2)`), with a 95% confidence interval ranging from `r round(icc_imdrank_result$lbound, 2)` to `r round(icc_imdrank_result$ubound, 2)`.  These results suggest a strong persistence of relative city rankings across the observed period.
+
+```{r imdintime,echo=FALSE,warning=FALSE,fig.cap="Trajectories of IMD Smart City rankings for each city (2019–2023)"}
+
+imdrank_long <- alldata %>%
+  select(City, RankIMD2019, RankIMD2020, RankIMD2021, RankIMD2023) %>%
+  pivot_longer(
+    cols = starts_with("RankIMD"),
+    names_to = "Year",
+    values_to = "Rank"
+  ) %>%
+  mutate(Year = str_remove(Year, "RankIMD") %>% as.integer())%>%
+  group_by(City) %>%
+  filter(sum(!is.na(Rank)) >= 2) %>%
+  ungroup()
+
+imdrank_long_labels <- imdrank_long %>%
+  group_by(City) %>%
+  filter(Year == max(Year[!is.na(Rank)])) %>%
+  ungroup()
+
+ggplot(imdrank_long, aes(x = Year, y = Rank, group = City)) +
+  geom_line(alpha = 0.5, na.rm=TRUE) +
+  geom_point() +
+  geom_text_repel(
+    data = imdrank_long_labels,
+    aes(label = City),
+    nudge_x = 0.5,
+    na.rm=TRUE,
+    size = 3,
+    direction = "y",
+    hjust = 0,
+    segment.color = NA
+  ) +
+  scale_x_continuous(
+    breaks = c(2019, 2020, 2021, 2023),
+    expand = expansion(mult = c(0.05, 0.3))
+  ) +
+  scale_y_reverse(limits = c(100, 0)) +
+  labs(
+    x = "Year",
+    y = "IMD Rank (less is better)"
+  ) +
+  theme_minimal()
+
+```
+
+In addition to the statistical analysis, a plot of IMD ranks across the four timepoints (Fig. 2) supports the notion of stable rankings, with the general decreasing tend explained by the addition of non-US cities that rank extremely well by IMD metrics (Canberra, Wellington, Reykjavik, Lausanne), in a manner that does not affect the US hierarachy.
+
+### SCD ratings components correlate moderate between domains, with the exception of reported Concerns
+
+```{r imdcomponentscorr,echo=FALSE,warning=FALSE}
+
+cor_hdi_tech <- cor.test(data_qc$HDI, data_qc$IMD_Technologies_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_hdi_struct <- cor.test(data_qc$HDI, data_qc$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_tech_struct <- cor.test(data_qc$IMD_Technologies_Sum, data_qc$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+
+cor_hdi_concerns <- cor.test(data_qc$HDI, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_tech_concerns <- cor.test(data_qc$IMD_Technologies_Sum, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_struct_concerns <- cor.test(data_qc$IMD_Structures_Sum, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+
+```
+
+Surprisingly, in the IMD survey, which provides domain metrics, not all of the four components of the SCD assessement correlate well between cities. Specifically, Pearson correlation analysis did not support a correlation between HDI and the sum of IMD Technologies indicators (r = `r round(cor_hdi_tech$estimate, 2)`, p = `r round(cor_hdi_tech$p.value, 3)`). In contrast, the correlation between HDI and the sum of IMD Structures indicators was r = `r round(cor_hdi_struct$estimate, 2)`, p = `r round(cor_hdi_struct$p.value, 3)`. The correlation between IMD Technologies and IMD Structures was r = `r round(cor_tech_struct$estimate, 2)`, p = `r round(cor_tech_struct$p.value, 3)`.
+
+Of note, the IMD Concerns sum significantly from normality (p = `r round(shapiro.test(data_qc$IMD_Concerns_Sum)$p.value, 3)`), unlike the other three IMD domains. Therefore, for associations involving the non-normally distributed IMD Concerns sum, Spearman correlations were used instead. Evidence of a correlation between HDI and IMD Concerns was found using Spearman's method (ρ = `r round(cor_hdi_concerns$estimate, 2)`, p = `r round(cor_hdi_concerns$p.value, 3)`). On the other hand, there was no evidence for an association between Technologies and Concerns (ρ = `r round(cor_tech_concerns$estimate, 2)`, p = `r round(cor_tech_concerns$p.value, 3)`), nor for the association between Structures and Concerns (ρ = `r round(cor_struct_concerns$estimate, 2)`, p = `r round(cor_struct_concerns$p.value, 3)`).
+
+A plot of these potential correlation (Fig. 3) indicates confirms that IMD Concerns scores are not normally distributed, with an extremely low sum of Concerns indicators for Denver. Nevertheless, Denver's exclusion fails to improve statistical significance between the sum of IMD Concerns indicators and the other domain indicator sums (data not shown). 
+
+
+```{r imdcomponentsplot,echo=FALSE,warning=FALSE,message=FALSE,,fig.cap="Correlations between IMD Smart City score domains"}
+
+p1imdcomponents <- ggplot(
+  alldata %>% filter(!is.na(HDI)),
+  aes(x = HDI, y = IMD_Concerns_Sum, label = City)
+  ) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
+  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "HDI", y = "IMD Concerns") +
+  geom_text_repel(size = 1) +
+  theme_minimal(base_size = 8)
+
+p2imdcomponents <- ggplot(data_qc, aes(x = IMD_Technologies_Sum, y = IMD_Concerns_Sum)) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "IMD Technologies", y = "IMD Concerns") +
+  theme_minimal(base_size = 8)
+
+p3imdcomponents <- ggplot(data_qc, aes(x = IMD_Structures_Sum, y = IMD_Concerns_Sum)) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
+  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "IMD Structures", y = "IMD Concerns") +
+  theme_minimal(base_size = 8)
+
+p4imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Structures_Sum)) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
+  scale_y_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "HDI", y = "IMD Structures") +
+  theme_minimal(base_size = 8)
+
+p5imdcomponents <- ggplot(data_qc, aes(x = IMD_Technologies_Sum, y = IMD_Structures_Sum)) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "IMD Technologies", y = "IMD Structures") +
+  theme_minimal(base_size = 8)
+
+p6imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Technologies_Sum)) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
+  scale_y_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
+  labs(x = "HDI", y = "IMD Technologies") +
+  theme_minimal(base_size = 8)
+
+(p6imdcomponents + plot_spacer() + plot_spacer()) / (p4imdcomponents + p5imdcomponents + plot_spacer()) / (p1imdcomponents + p2imdcomponents + p3imdcomponents)
+```
 
 ## Discussions
 
