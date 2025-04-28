@@ -83,7 +83,7 @@ H5. QoL metrics and SCD metrics correlate in cross-sectional analysis, demonstra
 
 H6. The correlation between QoL metrics and SCD metrics is domain-specific, with certain SCD domains (for example, smart transportation) showing stronger associations with QoL than others.
 
-H6. The correlation between QoL metrics and SCD metrics is domain-specific, with certain SCD domains (for example, leisure time) showing stronger associations with QoL than others.
+H7. The correlation between QoL metrics and SCD metrics is domain-specific, with certain SCD domains (for example, leisure time) showing stronger associations with QoL than others.
 
 ## Data acquisition and processing
 
@@ -95,7 +95,7 @@ For QoL, we used USNW rankings, compiled by experts for over fifty years and hig
 
 Since 2009, Numbeo.com has hosted a web platform where self-selected, anonymous users, authenticating with their email address, may rate cities acrss the world, based on criteria such as cost of living, cost of housing  as a proportion of income, safety, healthcare services, climate, pollution, and commute burden. Although there are concerns regarding data quality, as with any internet-based survey, each of the studied cities has over 200 reviews, which reduces the impact of malicious responses. Moreover, in addition to survey data, Numbeo also incorporates a few official public data in the calculation of its composite indices (detailed, based on, in Supplemental Table 4). Numbeo is considered the best available source, especially for local prices, by major media outlets such as The Economist (@LStaletwoecosystems2013), Forbes (@BarrettInvestigateYouExpatriate2010), and The New York Times (@KugelThingsYouCan2016). We manually collected overall QoL scores, as well as scores for its eight dimensions, from numbeo.com, as displayed in April 2024. 
 
-Manually-loaded data was pasted in LibreOffice Calc 25.2.2, and the resulting raw spreadsheet has been shared at TODO. Subsequently, data was imported in VSCode 1.99.3, processed and analyzed with R `r getRversion()` (@RCoreTeamlanguageenvironmentstatistical2021), and typeset with Quarto `r quarto::quarto_version()`. Data wrangling and visualization relied on the tidyverse R library, version `r as.character(packageVersion("tidyverse"))` (@tidyverse2019).
+Manually-loaded data was pasted in LibreOffice Calc 25.2.2, and the resulting raw spreadsheet has been shared at https://github.com/nvalexander/smartcities. Subsequently, data was imported in VSCode 1.99.3, processed and analyzed with R `r getRversion()` (@RCoreTeamlanguageenvironmentstatistical2021), and typeset with Quarto `r quarto::quarto_version()`. Data wrangling and visualization relied on the tidyverse R library, version `r as.character(packageVersion("tidyverse"))` (@tidyverse2019). Analysis used R libraries including tseries version `r as.character(packageVersion("tseries"))`, irr version version `r as.character(packageVersion("irr"))`, car version `r as.character(packageVersion("car"))`, broom version `r as.character(packageVersion("broom"))` and lmtest version `r as.character(packageVersion("lmtest"))`.
 
 ```{r loadingdata,echo=FALSE}
 suppressPackageStartupMessages({
@@ -105,6 +105,11 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(patchwork)
   library(irr)
+  library(knitr)
+  library(car)
+  library(broom)
+  library(tseries)
+  library(lmtest)
 })
 
 imd_concerns_vars <- c(
@@ -312,14 +317,16 @@ alldata <- iese2024data %>%
 
 ```
 
-Although USNW and Numbeo.com provide QoL ratings for hundreds and, respectively thousands of US cities, the number of cities ranked by IESE and IMD is typically around 100 across the world. For the most part we analyzed data for all the 19 US cities featured the IESE 2024 rankings, but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia) were assessed in all three reports used for this study. A set of 76 variables were obtained, including 59 metrics of SDC from IMD, 4 SCD metrics from IESE, 9 QoL metrics from Numbeo.com, 2 QoL metrics from USNW, and a control variable (overall USNW score).
+Although USNW and Numbeo.com provide QoL ratings for hundreds and, respectively thousands of US cities, the number of cities ranked by IESE and IMD is typically around 100 across the world. For the most part we analyzed data for all the 19 US cities featured the IESE 2024 rankings, but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia) were assessed in all three reports used for this study. A set of 76 variables were obtained, including 59 metrics of SDC from IMD, 4 SCD metrics from IESE, 9 QoL metrics from Numbeo.com, one QoL metrics from USNW, and two control variables (overall USNW score and rank).
 ```{r qc,echo=FALSE}
 
-data_qc <- alldata %>% select(-City, -ScoreUSNewsoverall)
+data_qc <- alldata %>% select(-City, -ScoreUSNewsoverall, -RankUSNews)
 
 n_vars <- ncol(data_qc)
 n_obs <- nrow(data_qc)
-missing_summary <- data_qc %>% summarise(across(everything(), ~ mean(is.na(.)))) %>% pivot_longer(everything())
+missing_summary <- data_qc %>% 
+  summarise(across(everything(), ~ mean(is.na(.)))) %>% 
+  pivot_longer(everything())
 
 prop_missing_overall <- mean(is.na(data_qc))
 vars_lt10pct_missing <- sum(missing_summary$value < 0.10)
@@ -330,14 +337,12 @@ distribution_summary <- data_qc %>%
   pivot_longer(everything())
 
 cause_vars <- data_qc %>% select(-all_of(c(
-  "RankUSNews",
   "ScoreUSNewsQoL",
   numbeo_component_vars,
   "Numbeo.com QoL Score"
 )))
 
 effect_vars <- data_qc %>% select(all_of(c(
-  "RankUSNews",
   "ScoreUSNewsQoL",
   numbeo_component_vars,
   "Numbeo.com QoL Score"
@@ -368,9 +373,9 @@ Among the 75 relevant variables `r scales::percent(prop_missing_overall)` of the
 
 ```{r ieseimdcorr,echo=FALSE}
 
-ieserank2024 <- data_qc[["RankIESE2024"]]
-imdrank2023  <- data_qc[["RankIMD2023"]]
-iesescore2024 <- data_qc[["CIMI2024"]]
+ieserank2024 <- alldata[["RankIESE2024"]]
+imdrank2023  <- alldata[["RankIMD2023"]]
+iesescore2024 <- alldata[["CIMI2024"]]
 
 pearson_imd_iese_rank <- cor.test(
   ieserank2024, 
@@ -428,16 +433,16 @@ p2imdvsiese <- ggplot(
 p1imdvsiese + p2imdvsiese
 ```
 
-Figure 1 illustrates the non-normality of IESE CIMI scores, introduced by the much higher score attributed to New York. . Given the non-normality of the IESE composite score, Spearman's rho was used to assess its association with the IMD ranking. The rank-based correlation was `r round(spearman_imd_iese_score$estimate, 2)` (p = `r round(spearman_imd_iese_score$p.value, 3)`, df = `r length(na.omit(iesescore2024)) - 2`). Although the latter test was not statistically significant, the former test indicates that IESE and IMD rankings capture broadly similar dimensions.
+Figure 1 illustrates the non-normality of IESE CIMI scores, introduced by the much higher score attributed to New York. Given the non-normality of the IESE composite score, Spearman's rho was used to assess its association with the IMD ranking. The rank-based correlation was `r round(spearman_imd_iese_score$estimate, 2)` (p = `r round(spearman_imd_iese_score$p.value, 3)`, df = `r length(na.omit(iesescore2024)) - 2`). Although the latter test was not statistically significant, the former test indicates that IESE and IMD rankings capture broadly similar dimensions.
 
 ### Expert SCD ratings are stable in time
 ```{r imdrankcorr,echo=FALSE}
-cor_imdrank_2019_2020 <- cor.test(data_qc$RankIMD2019, data_qc$RankIMD2020, method = "pearson", use = "pairwise.complete.obs")
-cor_imdrank_2020_2021 <- cor.test(data_qc$RankIMD2020, data_qc$RankIMD2021, method = "pearson", use = "pairwise.complete.obs")
-cor_imdrank_2021_2023 <- cor.test(data_qc$RankIMD2021, data_qc$RankIMD2023, method = "pearson", use = "pairwise.complete.obs")
+cor_imdrank_2019_2020 <- cor.test(alldata$RankIMD2019, alldata$RankIMD2020, method = "pearson", use = "pairwise.complete.obs")
+cor_imdrank_2020_2021 <- cor.test(alldata$RankIMD2020, alldata$RankIMD2021, method = "pearson", use = "pairwise.complete.obs")
+cor_imdrank_2021_2023 <- cor.test(alldata$RankIMD2021, alldata$RankIMD2023, method = "pearson", use = "pairwise.complete.obs")
 
 icc_imdrank_result <- icc(
-  data_qc %>% select(RankIMD2019, RankIMD2020, RankIMD2021, RankIMD2023),
+  alldata %>% select(RankIMD2019, RankIMD2020, RankIMD2021, RankIMD2023),
   model = "oneway",
   type = "consistency"
 )
@@ -496,24 +501,43 @@ In addition to the statistical analysis, a plot of IMD ranks across the four tim
 
 ```{r imdcomponentscorr,echo=FALSE,warning=FALSE}
 
-cor_hdi_tech <- cor.test(data_qc$HDI, data_qc$IMD_Technologies_Sum, method = "pearson", use = "pairwise.complete.obs")
-cor_hdi_struct <- cor.test(data_qc$HDI, data_qc$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
-cor_tech_struct <- cor.test(data_qc$IMD_Technologies_Sum, data_qc$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_hdi_tech <- cor.test(alldata$HDI, alldata$IMD_Technologies_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_hdi_struct <- cor.test(alldata$HDI, alldata$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_tech_struct <- cor.test(alldata$IMD_Technologies_Sum, alldata$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
 
-cor_hdi_concerns <- cor.test(data_qc$HDI, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
-cor_tech_concerns <- cor.test(data_qc$IMD_Technologies_Sum, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
-cor_struct_concerns <- cor.test(data_qc$IMD_Structures_Sum, data_qc$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_hdi_concerns <- cor.test(alldata$HDI, alldata$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_tech_concerns <- cor.test(alldata$IMD_Technologies_Sum, alldata$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_struct_concerns <- cor.test(alldata$IMD_Structures_Sum, alldata$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+
+cor_hdi_concerns_nodenver <- cor.test(
+  alldata$HDI[alldata$IMD_Structures_Sum != "Denver"],
+  alldata$IMD_Concerns_Sum[alldata$IMD_Structures_Sum != "Denver"],
+  method = "spearman",
+  use = "pairwise.complete.obs"
+  )
+cor_tech_concerns_nodenver <- cor.test(
+  alldata$IMD_Technologies_Sum[alldata$IMD_Structures_Sum != "Denver"],
+  alldata$IMD_Concerns_Sum[alldata$IMD_Structures_Sum != "Denver"],
+  method = "spearman",
+  use = "pairwise.complete.obs"
+)
+cor_struct_concerns_nodenver <- cor.test(
+  alldata$IMD_Structures_Sum[alldata$IMD_Structures_Sum != "Denver"],
+  alldata$IMD_Concerns_Sum[alldata$IMD_Structures_Sum != "Denver"],
+  method = "spearman",
+  use = "pairwise.complete.obs"
+  )
 
 ```
 
 Surprisingly, in the IMD survey, which provides domain metrics, not all of the four components of the SCD assessement correlate well between cities. Specifically, Pearson correlation analysis did not support a correlation between HDI and the sum of IMD Technologies indicators (r = `r round(cor_hdi_tech$estimate, 2)`, p = `r round(cor_hdi_tech$p.value, 3)`). In contrast, the correlation between HDI and the sum of IMD Structures indicators was r = `r round(cor_hdi_struct$estimate, 2)`, p = `r round(cor_hdi_struct$p.value, 3)`. The correlation between IMD Technologies and IMD Structures was r = `r round(cor_tech_struct$estimate, 2)`, p = `r round(cor_tech_struct$p.value, 3)`.
 
-Of note, the IMD Concerns sum significantly from normality (p = `r round(shapiro.test(data_qc$IMD_Concerns_Sum)$p.value, 3)`), unlike the other three IMD domains. Therefore, for associations involving the non-normally distributed IMD Concerns sum, Spearman correlations were used instead. Evidence of a correlation between HDI and IMD Concerns was found using Spearman's method (ρ = `r round(cor_hdi_concerns$estimate, 2)`, p = `r round(cor_hdi_concerns$p.value, 3)`). On the other hand, there was no evidence for an association between Technologies and Concerns (ρ = `r round(cor_tech_concerns$estimate, 2)`, p = `r round(cor_tech_concerns$p.value, 3)`), nor for the association between Structures and Concerns (ρ = `r round(cor_struct_concerns$estimate, 2)`, p = `r round(cor_struct_concerns$p.value, 3)`).
+The IMD Concerns sum significantly from normality (p = `r round(shapiro.test(alldata$IMD_Concerns_Sum)$p.value, 3)`), unlike the other three IMD domains. Therefore, for associations involving the non-normally distributed IMD Concerns sum, Spearman correlations were used instead. Evidence of a correlation between HDI and IMD Concerns was found using Spearman's method (ρ = `r round(cor_hdi_concerns$estimate, 2)`, p = `r round(cor_hdi_concerns$p.value, 3)`). On the other hand, there was no evidence for an association between Technologies and Concerns (ρ = `r round(cor_tech_concerns$estimate, 2)`, p = `r round(cor_tech_concerns$p.value, 3)`), nor for the association between Structures and Concerns (ρ = `r round(cor_struct_concerns$estimate, 2)`, p = `r round(cor_struct_concerns$p.value, 3)`).
 
 A plot of these potential correlation (Fig. 3) indicates confirms that IMD Concerns scores are not normally distributed, with an extremely low sum of Concerns indicators for Denver. Nevertheless, Denver's exclusion fails to improve statistical significance between the sum of IMD Concerns indicators and the other domain indicator sums (data not shown). 
 
 
-```{r imdcomponentsplot,echo=FALSE,warning=FALSE,message=FALSE,,fig.cap="Correlations between IMD Smart City score domains"}
+```{r imdcomponentsplot,echo=FALSE,warning=FALSE,message=FALSE,fig.cap="Correlations between IMD Smart City score domains"}
 
 p1imdcomponents <- ggplot(
   alldata %>% filter(!is.na(HDI)),
@@ -521,29 +545,29 @@ p1imdcomponents <- ggplot(
   ) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
-  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  scale_y_continuous(limits = c(443, 470), breaks = seq(450, 470, 10)) +
   geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
   labs(x = "HDI", y = "IMD Concerns") +
   geom_text_repel(size = 1) +
   theme_minimal(base_size = 8)
 
-p2imdcomponents <- ggplot(data_qc, aes(x = IMD_Technologies_Sum, y = IMD_Concerns_Sum)) +
+p2imdcomponents <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = IMD_Concerns_Sum)) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
-  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  scale_y_continuous(limits = c(443, 470), breaks = seq(450, 470, 10)) +
   geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
   labs(x = "IMD Technologies", y = "IMD Concerns") +
   theme_minimal(base_size = 8)
 
-p3imdcomponents <- ggplot(data_qc, aes(x = IMD_Structures_Sum, y = IMD_Concerns_Sum)) +
+p3imdcomponents <- ggplot(alldata, aes(x = IMD_Structures_Sum, y = IMD_Concerns_Sum)) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
-  scale_y_continuous(limits = c(445, 470), breaks = seq(450, 470, 10)) +
+  scale_y_continuous(limits = c(443, 470), breaks = seq(450, 470, 10)) +
   geom_smooth(method = "lm", se = TRUE, color = "grey", fill = "lightgrey", alpha = 0.2) +
   labs(x = "IMD Structures", y = "IMD Concerns") +
   theme_minimal(base_size = 8)
 
-p4imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Structures_Sum)) +
+p4imdcomponents <- ggplot(alldata, aes(x = HDI, y = IMD_Structures_Sum)) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
   scale_y_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
@@ -551,7 +575,7 @@ p4imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Structures_Sum)) +
   labs(x = "HDI", y = "IMD Structures") +
   theme_minimal(base_size = 8)
 
-p5imdcomponents <- ggplot(data_qc, aes(x = IMD_Technologies_Sum, y = IMD_Structures_Sum)) +
+p5imdcomponents <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = IMD_Structures_Sum)) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
   scale_y_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
@@ -559,7 +583,7 @@ p5imdcomponents <- ggplot(data_qc, aes(x = IMD_Technologies_Sum, y = IMD_Structu
   labs(x = "IMD Technologies", y = "IMD Structures") +
   theme_minimal(base_size = 8)
 
-p6imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Technologies_Sum)) +
+p6imdcomponents <- ggplot(alldata, aes(x = HDI, y = IMD_Technologies_Sum)) +
   geom_point(size = 1.5) +
   scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
   scale_y_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
@@ -570,9 +594,402 @@ p6imdcomponents <- ggplot(data_qc, aes(x = HDI, y = IMD_Technologies_Sum)) +
 (p6imdcomponents + plot_spacer() + plot_spacer()) / (p4imdcomponents + p5imdcomponents + plot_spacer()) / (p1imdcomponents + p2imdcomponents + p3imdcomponents)
 ```
 
-## Discussions
+### QoL metrics do not fall into agreement
 
-More notably, a number of indices used by IESE are actually sourced from Numbeo.
+```{r echo=FALSE}
+cor_usnw_numbeo_qol <- cor.test(
+  alldata$ScoreUSNewsQoL, 
+  alldata$`Numbeo.com QoL Score`,
+  method = "pearson",
+  use = "pairwise.complete.obs"
+  )
+cor_usnw_numbeo_components <- lapply(
+  numbeo_component_vars, 
+  function(var) {
+    cor.test(alldata$ScoreUSNewsQoL, alldata[[var]], method = "pearson", use = "pairwise.complete.obs")
+  }
+)
+names(cor_usnw_numbeo_components) <- numbeo_component_vars
+```
+
+Another failure to support one of hypothese was noted when testing  Pearson correlation between the USNW and Numbeo.com QoL metrics. In the global analysis, there was no statistical significance for an eventual correlation (r = `r round(cor_usnw_numbeo_qol$estimate, 2)`, p = `r round(cor_usnw_numbeo_qol$p.value, 3)`). To explore potential partial overlaps, Pearson correlation analysis was applied to all the possible combinations between the USNW QoL score and each of the eight Numbeo component indices. The only meaningful correaltion was the negative correlation between the USNW QoL score and Numbeo Pollution Index (r = `r round(cor_usnw_numbeo_components[["Numbeo.com Pollution Index"]]$estimate, 2)`, p = `r round(cor_usnw_numbeo_components[["Numbeo.com Pollution Index"]]$p.value, 3)`). Counterintutively, the USNW QoL score exhibited significant positive correlation with the Numbeo Cost of Living Index (r = `r round(cor_usnw_numbeo_components[["Numbeo.com Cost of Living Index"]]$estimate, 2)`, p = `r round(cor_usnw_numbeo_components[["Numbeo.com Cost of Living Index"]]$p.value, 3)`) and weak positive correlation with the Property Price to Income Ratio (r = `r round(cor_usnw_numbeo_components[["Numbeo.com Property Price to Income Ratio"]]$estimate, 2)`, p = `r round(cor_usnw_numbeo_components[["Numbeo.com Property Price to Income Ratio"]]$p.value, 3)`). No other Numbeo components displayed strong or statistically significant associations with the USNW QoL score. These results, as well as the corespnding graphic representation (Fig. 4) suggest that, while some aspects of local affordability and environmental quality relate to the USNW metric, broader alignment between the two systems remains limited.
+
+```{r usnwvsnumbeoplot,echo=FALSE,warning=FALSE,message=FALSE,echo=FALSE, fig.cap="Weak correlation between USNW and Numbeo QoL scores"}
+
+ggplot(alldata, aes(x = ScoreUSNewsQoL, y = `Numbeo.com QoL Score`, label = City)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", fill = "lightblue", alpha = 0.2) +
+  geom_text_repel(size = 3) +
+  scale_x_continuous(limits = c(5, 7.5), breaks = seq(5, 7.5, 0.5)) +
+  scale_y_continuous(limits = c(130, 185), breaks = seq(130, 185, 10)) +
+  labs(
+    x = "USNW QoL Score",
+    y = "Numbeo.com QoL Score"
+  ) +
+  theme_minimal(base_size = 8)
+```
+
+### Data does not support a correlation between SCD metrics and QoL metrics
+
+```{r qolscd_corrs,echo=FALSE,warning=FALSE}
+shapiro_rankimd2023 <- shapiro.test(alldata$RankIMD2023)
+shapiro_rankiese2024 <- shapiro.test(alldata$RankIESE2024)
+shapiro_usnw_qol <- shapiro.test(alldata$ScoreUSNewsQoL)
+shapiro_numbeo_qol <- shapiro.test(alldata$`Numbeo.com QoL Score`)
+
+cor_usnw_imd <- cor.test(alldata$ScoreUSNewsQoL, alldata$RankIMD2023, method = "pearson", use = "pairwise.complete.obs")
+cor_usnw_iese <- cor.test(alldata$ScoreUSNewsQoL, alldata$RankIESE2024, method = "pearson", use = "pairwise.complete.obs")
+cor_numbeo_imd <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$RankIMD2023, method = "pearson", use = "pairwise.complete.obs")
+cor_numbeo_iese <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$RankIESE2024, method = "pearson", use = "pairwise.complete.obs")
+
+```
+
+The normality of the main QoL and SCD indicators was assessed using Shapiro-Wilk tests. None of the tests rejected the null hypothesis of normality (data not shown), justifying the use of Pearson correlation for subsequent analyses. The correlation between USNW QoL scores and the IMD 2023 SCD ranking was moderate and negative (r = `r round(cor_usnw_imd$estimate, 2)`, p = `r round(cor_usnw_imd$p.value, 3)`), but did not reach statistical significance. A similar negative trend was observed between USNW QoL scores and the IESE 2024 ranking (r = `r round(cor_usnw_iese$estimate, 2)`, p = `r round(cor_usnw_iese$p.value, 3)`). In contrast, correlations between the Numbeo QoL score and either SCD ranking were weak (r = `r round(cor_numbeo_imd$estimate, 2)` and r = `r round(cor_numbeo_iese$estimate, 2)`, respectively) and nonsignificant (p = `r round(cor_numbeo_imd$p.value, 3)` and p = `r round(cor_numbeo_iese$p.value, 3)`, respectively).
+
+```{r qolscdplot,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Weak associations between SCD ranks and QoL scores. Rank axes are inverted."}
+
+p1qolscd <- ggplot(alldata, aes(x = RankIMD2023, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  geom_text_repel(aes(label = City), size = 2.5, max.overlaps = 15) +
+  scale_y_reverse() +
+  labs(x = "IMD 2023 Rank (less is better)", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8)
+
+p2qolscd <- ggplot(alldata, aes(x = RankIESE2024, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_y_reverse() +
+  labs(x = "IESE 2024 Rank (less is better)", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8)
+
+p3qolscd <- ggplot(alldata, aes(x = RankIMD2023, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_y_reverse() +
+  labs(x = "IMD 2023 Rank (less is better)", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8)
+
+p4qolscd <- ggplot(alldata, aes(x = RankIESE2024, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_y_reverse() +
+  labs(x = "IESE 2024 Rank (less is better)", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8)
+
+(p3qolscd + p4qolscd) / (p1qolscd + p2qolscd)
+```
+
+A plot of the above-analyzed correlation (Fig. 5) confirms the hypothesized trend towards better QoL rankings for cities with stronger SCD polices, when the QoL is assessed by USNW. Paradoxically, the minute effect that SCD policies appear to have on Numbeo.com rankings manifest as trends towards positive correlation, that is, stronger SCD policies associate with worse QoL Numbeo.com rankings. In the next section, we will investigate which dimensions of Numbeo.com or IMD composite scores are best associated with the marginal effects uncovered here.
+
+
+### Numbeo.com QoL metrics are negatively correlated with most technology-related SCD items
+
+```{r imdcorrelates,echo=FALSE,warning=FALSE}
+shapiro_usnw_qol <- shapiro.test(alldata$ScoreUSNewsQoL)
+shapiro_numbeo_qol <- shapiro.test(alldata$`Numbeo.com QoL Score`)
+shapiro_imd_structures <- shapiro.test(alldata$IMD_Structures_Sum)
+shapiro_imd_technologies <- shapiro.test(alldata$IMD_Technologies_Sum)
+shapiro_imd_concerns <- shapiro.test(alldata$IMD_Concerns_Sum)
+shapiro_hdi <- shapiro.test(alldata$HDI)
+
+cor_usnw_structures <- cor.test(alldata$ScoreUSNewsQoL, alldata$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_usnw_technologies <- cor.test(alldata$ScoreUSNewsQoL, alldata$IMD_Technologies_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_usnw_concerns <- cor.test(alldata$ScoreUSNewsQoL, alldata$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_usnw_hdi <- cor.test(alldata$ScoreUSNewsQoL, alldata$HDI, method = "pearson", use = "pairwise.complete.obs")
+
+cor_numbeo_structures <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$IMD_Structures_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_numbeo_technologies <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$IMD_Technologies_Sum, method = "pearson", use = "pairwise.complete.obs")
+cor_numbeo_concerns <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$IMD_Concerns_Sum, method = "spearman", use = "pairwise.complete.obs")
+cor_numbeo_hdi <- cor.test(alldata$`Numbeo.com QoL Score`, alldata$HDI, method = "pearson", use = "pairwise.complete.obs")
+
+imd_structure_usnw_correlations <- lapply(imd_structures_vars, function(var) {
+  test <- cor.test(alldata[[var]], alldata$ScoreUSNewsQoL, method = "pearson", use = "pairwise.complete.obs")
+  list(r = test$estimate, p = test$p.value)
+})
+names(imd_structure_usnw_correlations) <- imd_structures_vars
+
+imd_structure_usnw_cor_df <- data.frame(
+  Component = names(imd_structure_usnw_correlations),
+  r = sapply(imd_structure_usnw_correlations, function(x) x$r),
+  p = sapply(imd_structure_usnw_correlations, function(x) x$p)
+)
+
+imd_structure_usnw_cor_df <- imd_structure_usnw_cor_df[order(-abs(imd_structure_usnw_cor_df$r)), ]
+top5_imd_structure_usnw <- head(imd_structure_usnw_cor_df, 5)
+
+imd_technology_numbeo_correlations <- lapply(imd_technologies_vars, function(var) {
+  test <- cor.test(alldata[[var]], alldata$`Numbeo.com QoL Score`, method = "pearson", use = "pairwise.complete.obs")
+  list(r = test$estimate, p = test$p.value)
+})
+names(imd_technology_numbeo_correlations) <- imd_technologies_vars
+
+imd_technology_numbeo_cor_df <- data.frame(
+  Component = names(imd_technology_numbeo_correlations),
+  r = sapply(imd_technology_numbeo_correlations, function(x) x$r),
+  p = sapply(imd_technology_numbeo_correlations, function(x) x$p)
+)
+
+imd_technology_numbeo_cor_df <- imd_technology_numbeo_cor_df[order(-abs(imd_technology_numbeo_cor_df$r)), ]
+top5_imd_technology_numbeo <- head(imd_technology_numbeo_cor_df, 15)
+
+```
+
+We have seen that IMD-assessed SCD exhibit a trend towards association with better QoL rankings, when originating from USNW. In this section, we attempt to uncover which of the IMD domains coordinates best with improved QoL. The general trands are illustrated in Fig. 6.
+
+```{r imddomainsvsqolplot,fig.width=8,fig.height=10,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Associations between SCD domain scores, as evaluated by IMD, and QoL scores"}
+
+p1_imd_qol <- ggplot(alldata, aes(x = IMD_Structures_Sum, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
+  scale_y_continuous(limits = c(5, 7.5), breaks = seq(5, 7.5, 0.5)) +
+  labs(x = "IMD Structures Sum", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8)
+
+p2_imd_qol <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(5, 7.5), breaks = seq(5, 7.5, 0.5)) +
+  labs(x = "IMD Technologies Sum", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8) 
+
+p3_imd_qol <- ggplot(alldata, aes(x = IMD_Concerns_Sum, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(443, 470), breaks = seq(450, 470, 10)) +
+  scale_y_continuous(limits = c(5, 7.5), breaks = seq(5, 7.5, 0.5)) +
+  labs(x = "IMD Concerns Sum", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8) 
+
+p4_imd_qol <- ggplot(alldata, aes(x = HDI, y = ScoreUSNewsQoL)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
+  scale_y_continuous(limits = c(5, 7.5), breaks = seq(5, 7.5, 0.5)) +
+  labs(x = "HDI", y = "USNW QoL Score") +
+  theme_minimal(base_size = 8) 
+
+p5_imd_qol <- ggplot(alldata, aes(x = IMD_Structures_Sum, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(880, 1120), breaks = seq(880, 1120, 40)) +
+  scale_y_continuous(limits = c(130, 185), breaks = seq(130, 185, 10)) +
+  labs(x = "IMD Structures Sum", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8) 
+
+p6_imd_qol <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(130, 185), breaks = seq(130, 185, 10)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8)
+
+p7_imd_qol <- ggplot(alldata, aes(x = IMD_Concerns_Sum, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(443, 470), breaks = seq(450, 470, 10)) +
+  scale_y_continuous(limits = c(130, 185), breaks = seq(130, 185, 10)) +
+  labs(x = "IMD Concerns Sum", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8)
+
+p8_imd_qol <- ggplot(alldata, aes(x = HDI, y = `Numbeo.com QoL Score`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(0.907, 0.95), breaks = seq(0.91, 0.95, 0.01)) +
+  scale_y_continuous(limits = c(130, 185), breaks = seq(130, 185, 10)) +
+  labs(x = "HDI", y = "Numbeo QoL Score") +
+  theme_minimal(base_size = 8)
+
+(p1_imd_qol + p5_imd_qol) / (p2_imd_qol + p6_imd_qol) / (p3_imd_qol + p7_imd_qol) / (p4_imd_qol + p8_imd_qol) & 
+  theme(aspect.ratio = 0.75)
+```
+
+As shown earlier, the sum of IMD Concerns indicators deviates significantly from normality. Accordingly, correlations involving it were assessed using Spearman's method, while the other IMD domains were tested with Pearson's method.
+
+Among USNW-related associations, a moderate positive correlation was found with sum of IMD Structures (r = `r round(cor_usnw_structures$estimate, 2)`, p = `r round(cor_usnw_structures$p.value, 3)`) and with HDI (r = `r round(cor_usnw_hdi$estimate, 2)`, p = `r round(cor_usnw_hdi$p.value, 3)`), although neither reached statistical significance. The correlation between USNW QoL and sum of IMD Technologies was near zero (r = `r round(cor_usnw_technologies$estimate, 2)`, p = `r round(cor_usnw_technologies$p.value, 3)`), and the Spearman correlation with sum IMD Concerns was weak (ρ = `r round(cor_usnw_concerns$estimate, 2)`, p = `r round(cor_usnw_concerns$p.value, 3)`). Correlation analysis between the USNW QoL score and the various items listed under IMD Structures reveals that the better-asociated items are not necessarily those that we normally associate with SCD, especially within the US/NIST paradigm. For example, the item that best predicts a good USNW QoL score is the availability of bars and museums (Table 1).
+
+```{r structurestable,tbl.cap="Top 5 correlations between IMD Structure items and USNW QoL Score, sorted by absolute value of Pearson r",echo=FALSE,warning=FALSE}
+kable(
+  top5_imd_structure_usnw,
+  format = "simple",
+  digits = 3,
+  row.names = FALSE,
+  col.names = c("IMD Structures component", "Pearson r", "p-value")
+)
+
+```
+
+For Numbeo QoL, no meaningful correlations were observed with the sum of IMD Structures (r = `r round(cor_numbeo_structures$estimate, 2)`, p = `r round(cor_numbeo_structures$p.value, 3)`), HDI (r = `r round(cor_numbeo_hdi$estimate, 2)`, p = `r round(cor_numbeo_hdi$p.value, 3)`), or sum of IMD Concerns (ρ = `r round(cor_numbeo_concerns$estimate, 2)`, p = `r round(cor_numbeo_concerns$p.value, 3)`). A significant negative correlation was found between Numbeo QoL and sum of IMD Technologies (r = `r round(cor_numbeo_technologies$estimate, 2)`, p = `r round(cor_numbeo_technologies$p.value, 3)`). Moreover, a large number of items that fit the NIST/US definition of SCD, listed under IMD Technologies, are, unexpectedly, negatively correlated with Numbeo.co QoL scores.
+
+```{r technologiestable, tbl.cap="Top 15 correlations between IMD Technology items and Numbeo QoL Score, sorted by absolute value of Pearson r", echo=FALSE, warning=FALSE}
+kable(
+  top5_imd_technology_numbeo,
+  format = "simple",
+  digits = 3,
+  row.names = FALSE,
+  col.names = c("IMD Technology component", "Pearson r", "p-value")
+)
+```
+
+These findings suggest a domain-specific relationship between QoL metrics and technological SCD dimensions, with technological dimensions showing a strong, negative association, particularly when assessed through Numbeo.
+
+### Several subdomains of Numbeo.com QoL metric negatively correlate with technology SCD
+
+Despite the unassuming lack of correlation with various other general metrics, Numbeo.com QoL metrics are solidly, and paradoxically negatively corelated with technology-related SCD policies, as measured by the IMD. In this section, we attempt to find which of the eight dimensions of Numbeo.com QoL assessment are more impactd by tchnology SCD policies. General trends may be visualized in Fig. 7.
+```{r imdtechvsnumbeoplot,fig.width=8,fig.height=10,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Associations between Numbeo.com QoL domain scores, as evaluated by IMD, and sum of IMD Technologies indicators"}
+
+p1_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Purchasing Power Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(95, 150), breaks = seq(90, 150, 10)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Purchasing Power Index") +
+  theme_minimal(base_size = 8)
+
+p2_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Safety Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(24, 60), breaks = seq(25, 60, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Safety Index") +
+  theme_minimal(base_size = 8) 
+
+p3_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Health Care Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(53, 75), breaks = seq(55, 75, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Health Care Index") +
+  theme_minimal(base_size = 8) 
+
+p4_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Climate Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(52, 100), breaks = seq(55, 100, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Climate Index") +
+  theme_minimal(base_size = 8) 
+
+p5_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Cost of Living Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(65, 100), breaks = seq(65, 100, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Cost of Living Index") +
+  theme_minimal(base_size = 8) 
+
+p6_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Property Price to Income Ratio`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(0, 14), breaks = seq(0, 14, 2)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Property Price to Income Ratio") +
+  theme_minimal(base_size = 8)
+
+p7_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Traffic Commute Time Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(25, 60), breaks = seq(25, 60, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Traffic Commute Time Index") +
+  theme_minimal(base_size = 8)
+
+p8_imdtech_numbeo <- ggplot(alldata, aes(x = IMD_Technologies_Sum, y = `Numbeo.com Traffic Commute Time Index`)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40", fill = "lightgrey", alpha = 0.3) +
+  scale_x_continuous(limits = c(960, 1280), breaks = seq(960, 1280, 80)) +
+  scale_y_continuous(limits = c(35, 70), breaks = seq(35, 70, 5)) +
+  labs(x = "IMD Technologies Sum", y = "Numbeo.com Traffic Commute Time Index") +
+  theme_minimal(base_size = 8)
+
+(p1_imdtech_numbeo + p5_imdtech_numbeo) / (p2_imdtech_numbeo + p6_imdtech_numbeo) / (p3_imdtech_numbeo + p7_imdtech_numbeo) / (p4_imdtech_numbeo + p8_imdtech_numbeo) & 
+  theme(aspect.ratio = 0.75)
+```
+
+
+```{r technumbeocorrs,echo=FALSE,warning=FALSE}
+shapiro_numbeo_components <- lapply(
+  numbeo_component_vars, 
+  function(var) {
+    test <- shapiro.test(alldata[[var]])
+  }
+)
+names(shapiro_numbeo_components) <- numbeo_component_vars
+
+imdtech_numbeo_correlations <- lapply(
+  numbeo_component_vars,
+  function(var) {
+    test <- cor.test(alldata$IMD_Technologies_Sum, alldata[[var]], method = "pearson", use = "pairwise.complete.obs")
+    list(r = test$estimate, p = test$p.value)
+  }
+)
+names(imdtech_numbeo_correlations) <- numbeo_component_vars
+```
+
+Normality of IMD Technologies Sum and all Numbeo component indices was assessed using Shapiro-Wilk tests and was not rejected for any variable (data not shown), justifying the use of Pearson correlations. Among the eight Numbeo domains, three showed statistically significant associations with IMD Technologies Sum: the Health Care Index (r = `r round(imdtech_numbeo_correlations[["Numbeo.com Health Care Index"]]$r, 2)`, p = `r round(imdtech_numbeo_correlations[["Numbeo.com Health Care Index"]]$p, 3)`), the Cost of Living Index (r = `r round(imdtech_numbeo_correlations[["Numbeo.com Cost of Living Index"]]$r, 2)`, p = `r round(imdtech_numbeo_correlations[["Numbeo.com Cost of Living Index"]]$p, 3)`), and the Property Price to Income Ratio (r = `r round(imdtech_numbeo_correlations[["Numbeo.com Property Price to Income Ratio"]]$r, 2)`, p = `r round(imdtech_numbeo_correlations[["Numbeo.com Property Price to Income Ratio"]]$p, 3)`). No other domain displayed a significant correlation with IMD Technologies (data not shown). In other words, Numbeo.com respondents rating QoL in high-tech cities are negatively affected by increased cost of living, excessive real estates prices by comparison with incomes, and reduced access to quality healthcare.
+
+### Multivariate linear regression models for the contribution of various QoL components to the technology-associated dissatisfaction
+
+```{r threepredictors,echo=FALSE,warning=FALSE}
+
+model_three_predictors <- lm(
+  IMD_Technologies_Sum ~ 
+  `Numbeo.com Health Care Index` + 
+  `Numbeo.com Property Price to Income Ratio` +
+  `Numbeo.com Cost of Living Index`,
+  data = alldata
+  )
+
+summary_three_predictors <- summary(model_three_predictors)
+vif_three_predictors <- vif(model_three_predictors)
+dwtest_three_predictors <- dwtest(model_three_predictors)
+jbtest_three_predictors <- jarque.bera.test(resid(model_three_predictors))
+bptest_three_predictors <- bptest(model_three_predictors)
+shapiro_three_predictors <- shapiro.test(resid(model_three_predictors))
+```
+
+A multiple linear regression model was tested to predict IMD Technologies Sum based on the three Numbeo dimensions shown earlier to best correlate with it, namely Health Care Index, Property Price to Income Ratio, and Cost of Living Index. The model showed a moderate fit (adjusted R² = `r round(summary_three_predictors$adj.r.squared, 3)`, p = `r signif(summary_three_predictors$fstatistic["p-value"], 2)`). Among the predictors, only the Health Care Index remained statistically significant (β = `r round(coef(summary_three_predictors)[2, "Estimate"], 2)`, p = `r round(coef(summary_three_predictors)[2, "Pr(>|t|)"], 3)`), while Property Price to Income Ratio (β = `r round(coef(summary_three_predictors)[3, "Estimate"], 2)`, p = `r round(coef(summary_three_predictors)[3, "Pr(>|t|)"], 3)`) and Cost of Living Index (β = `r round(coef(summary_three_predictors)[4, "Estimate"], 2)`, p = `r round(coef(summary_three_predictors)[4, "Pr(>|t|)"], 3)`) were not. Residuals passed tests for global normality (Jarque-Bera p = `r round(jbtest_three_predictors$p.value, 3)`) and heteroskedasticity (Breusch-Pagan p = `r round(bptest_three_predictors$p.value, 3)`). No autocorrelation was detected (Durbin-Watson = `r round(dwtest_three_predictors$statistic, 2)`, p = `r round(dwtest_three_predictors$p.value, 3)`). However, Shapiro-Wilk test indicated residual non-normality (p = `r round(shapiro_three_predictors$p.value, 3)`), and multicollinearity analysis revealed excessive inflation for Property Price to Income Ratio (VIF = `r round(vif_three_predictors[2], 2)`) and Cost of Living Index (VIF = `r round(vif_three_predictors[3], 2)`).
+
+Given the lack of significance for the Cost of Living Index (p = `r round(coef(summary_three_predictors)[4, "Pr(>|t|)"], 3)`) and its substantial contribution to multicollinearity (VIF = `r round(vif_three_predictors[3], 2)`), we chose to drop this variable and pursue modling using the remaining two predictors.
+
+
+```{r twopredictors, echo=FALSE, warning=FALSE}
+model_two_predictors <- lm(
+  IMD_Technologies_Sum ~
+  `Numbeo.com Health Care Index` + 
+  `Numbeo.com Property Price to Income Ratio`, 
+  data = alldata)
+
+summary_two_predictors <- summary(model_two_predictors)
+vif_two_predictors <- vif(model_two_predictors)
+dwtest_two_predictors <- dwtest(model_two_predictors)
+jbtest_two_predictors <- jarque.bera.test(resid(model_two_predictors))
+bptest_two_predictors <- bptest(model_two_predictors)
+shapiro_two_predictors <- shapiro.test(resid(model_two_predictors))
+```
+
+A second linear regression model was then estimated using only the Health Care Index and Property Price to Income Ratio as predictors. The model exhibited a strong fit (adjusted R² = `r round(summary_two_predictors$adj.r.squared, 3)`, p = `r signif(pf(summary_two_predictors$fstatistic[1], summary_two_predictors$fstatistic[2], summary_two_predictors$fstatistic[3], lower.tail = FALSE), 2)`). The Health Care Index was a statistically significant predictor (β = `r round(coef(summary_two_predictors)[2, "Estimate"], 2)`, p = `r round(coef(summary_two_predictors)[2, "Pr(>|t|)"], 3)`), while Property Price to Income Ratio was marginally non-significant (β = `r round(coef(summary_two_predictors)[3, "Estimate"], 2)`, p = `r round(coef(summary_two_predictors)[3, "Pr(>|t|)"], 3)`). Multicollinearity diagnostics confirmed acceptable VIF values for both predictors (VIF = `r round(vif_two_predictors[1], 2)` and `r round(vif_two_predictors[2], 2)` respectively). Residual analysis revealed no significant autocorrelation (Durbin-Watson = `r round(dwtest_two_predictors$statistic, 2)`, p = `r round(dwtest_two_predictors$p.value, 3)`), no evidence of heteroskedasticity (Breusch-Pagan p = `r round(bptest_two_predictors$p.value, 3)`), and satisfactory global normality of residuals (Jarque-Bera p = `r round(jbtest_two_predictors$p.value, 3)`). Additionally, the Shapiro-Wilk test for residuals was non-significant (p = `r round(shapiro_two_predictors$p.value, 3)`), confirming normality.
+
+These results supported the selection of the two-predictor model as the more robust specification. They provide strong support for a linear relationship between improved IMD-evaluated SCD technologies and perceived impaired access to quality healthcare, as reported by Numbeo.com users. They also suggest a trend towards a second, independent, QoL dimension being affected by SCD technologies, namely housing costs.
+
+## Discussion
+
+In this study, we analyzed the correlations between smart city development (SCD) metrics and quality of life (QoL) outcomes. Urban development was assessed by two prestigious academic institutions, based on scores derived from dozens of semi-independent elements, producing rankings that have been republished for decades. The two SCD metrics demonstrated a high degree of similarity. However, these metrics focus on global rankings, generating very small samples. In contrast, QoL is a well-established concept, which could have allowed for the inclusion of a larger number of cities. Nonetheless, because QoL is a central theme in political debates and cultural identity, no unique, standardized definition exists, Unsurprisingly, the two QoL metrics used in this study are not fully aligned.
+
+A large part of the SCD metrics analyzed were not correlated with QoL metrics. While in the case of the IESE metrics, such findings could be attributed to smaller sample sizes, in the case of the IMD metrics we described variable, occasionally very strong, correlations at domain- and item-level with QoL metrics. Specifically, QoL as measured by USNW criteria was positively correlated with the city-level estimated HDI and with the IMD Structures indicator. The latter correlation could largely be explained by the presence of green spaces and of theaters, museums, and bars. By contrast, quality of life as estimated by USNW appeared to be independent of the IMD Technologies index. The opposite situation was observed for QoL life as estimated by the Numbeo algorithm. In this case, the IMD Technologies index was the only SCD metric that correlated with the QoL score. Surprisingly, the correlation was inverse (more technology with poorer QoL), and could not be attributed to any specific technological item. Two components among the eight included in the Numbeo score — namely, the quality of healthcare services and the housing cost-to-income ratio — largely explained this negative correlation.
+
+In conclusion, this study provides evidence that SCD can enhance QoL, but also identifies contexts where this link does not translate into perceived improvements for residents. Given the cross-sectional design, no claims about temporal precedence or causality can be made. Specifically, it appeears that SCD may primarily benefit younger, healthier residents with discretionary income, while disadvantaging renters and individuals with chronic illnesses.
+
+A redefinition of urban development objectives, beyond current IESE and IMD frameworks, may be necessary. For example, several indices used by IESE are based on data from Numbeo. Since Numbeo captures perceived QoL — the outcome rather than the exposure — it appears that the IESE metrics reflect not just the development process, but tend to favor local governments that succeed in achieving their targets, regardless of the methods employed.
+
+This study naturally has some limitations. First, most of the negative results are likely to be type II errors, given the extremely small sample size. However, expanding the sample to a significantly larger volume is unlikely, as few municipalities possess the motivation, vision, and funding necessary for effective SCD.
+
+Another limitation is the lack of optimal data on QoL. Alternative metrics exist, but they were not accessible during the drafting of this analysis. Nevertheless, it should be noted that in most rankings, the QoL situation tends to align more closely with what is reflected by Numbeo, where New York City ranks well below Denver. Even the USNW rankings have historically placed New York at a QoL level that is, at best, mediocre compared to Denver, which is historically considered a Top 10 city for QoL (@SparksNYCisnAmerica2019).
+
+During the research for this paper, we did not come across any publication that applied quantitative methods to analyze the relationship between SCD and QoL in the Western world. This gap may be explained by the tautological nature of the subject, with the IESE and IMD metrics serving as clear examples of confusion between mechanisms and objectives. For instance, the number of museums may be seen more as a goal — a component of QoL — rather than a lever for achieving the goal, that is, a tool of SCD. Even so, this paper offers a good starting point for critically evaluating what we currently call SCD, what opinion leaders consider necessary for SCD progress, and what remains to be done to achieve a more inclusive SCD.
 
 \appendix
 

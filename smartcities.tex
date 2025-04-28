@@ -240,7 +240,7 @@ on quality of life in the United States}
 University for Economic Studies}
 
 
-\date{Last Updated on April 27, 2025, 21:49 UTC}
+\date{Last Updated on April 28, 2025, 03:38 UTC}
 \begin{document}
 \maketitle
 
@@ -412,7 +412,7 @@ H6. The correlation between QoL metrics and SCD metrics is
 domain-specific, with certain SCD domains (for example, smart
 transportation) showing stronger associations with QoL than others.
 
-H6. The correlation between QoL metrics and SCD metrics is
+H7. The correlation between QoL metrics and SCD metrics is
 domain-specific, with certain SCD domains (for example, leisure time)
 showing stronger associations with QoL than others.
 
@@ -485,13 +485,16 @@ manually collected overall QoL scores, as well as scores for its eight
 dimensions, from numbeo.com, as displayed in April 2024.
 
 Manually-loaded data was pasted in LibreOffice Calc 25.2.2, and the
-resulting raw spreadsheet has been shared at TODO. Subsequently, data
-was imported in VSCode 1.99.3, processed and analyzed with R 4.2.2 (R
-Core Team
+resulting raw spreadsheet has been shared at
+https://github.com/nvalexander/smartcities. Subsequently, data was
+imported in VSCode 1.99.3, processed and analyzed with R 4.2.2 (R Core
+Team
 (\citeproc{ref-RCoreTeamlanguageenvironmentstatistical2021}{2021})), and
 typeset with Quarto 1.7.29. Data wrangling and visualization relied on
 the tidyverse R library, version 2.0.0 (Wickham et al.
-(\citeproc{ref-tidyverse2019}{2019})).
+(\citeproc{ref-tidyverse2019}{2019})). Analysis used R libraries
+including tseries version 0.10.58, irr version version 0.84.1, car
+version 3.1.3, broom version 1.0.8 and lmtest version 0.9.40.
 
 Although USNW and Numbeo.com provide QoL ratings for hundreds and,
 respectively thousands of US cities, the number of cities ranked by IESE
@@ -500,17 +503,17 @@ analyzed data for all the 19 US cities featured the IESE 2024 rankings,
 but only 4 US cities (New York, Los Angeles, Chivago and Philadelphia)
 were assessed in all three reports used for this study. A set of 76
 variables were obtained, including 59 metrics of SDC from IMD, 4 SCD
-metrics from IESE, 9 QoL metrics from Numbeo.com, 2 QoL metrics from
-USNW, and a control variable (overall USNW score).
+metrics from IESE, 9 QoL metrics from Numbeo.com, one QoL metrics from
+USNW, and two control variables (overall USNW score and rank).
 
 Among the 75 relevant variables 40\% of the data was missing.
-Missingness ranged from 13 variables with fewer than 10\% missing data
+Missingness ranged from 12 variables with fewer than 10\% missing data
 to 3 varaibles from IEsE 2014 with more than 50\% missingness. The
-overall mean skewness was low (mean absolute skewness 0.07), suggesting
+overall mean skewness was low (mean absolute skewness 0.08), suggesting
 limited departure from normality. Within the SCD-related variable set,
 17.2\% of pairs had an absolute Pearson correlation greater than 0.7,
 suggestign some redundancy among predictors. Among QoL-related
-variables, 3.6\% of pairs exceeded this threshold, indicating minimal
+variables, 2.2\% of pairs exceeded this threshold, indicating minimal
 multicollinearity.
 
 \section{Results}\label{results}
@@ -538,12 +541,12 @@ rankings and IESE 2024 indicators.}
 \end{figure}%
 
 Figure 1 illustrates the non-normality of IESE CIMI scores, introduced
-by the much higher score attributed to New York. . Given the
-non-normality of the IESE composite score, Spearman's rho was used to
-assess its association with the IMD ranking. The rank-based correlation
-was -0.53 (p = 0.123, df = 17). Although the latter test was not
-statistically significant, the former test indicates that IESE and IMD
-rankings capture broadly similar dimensions.
+by the much higher score attributed to New York. Given the non-normality
+of the IESE composite score, Spearman's rho was used to assess its
+association with the IMD ranking. The rank-based correlation was -0.53
+(p = 0.123, df = 17). Although the latter test was not statistically
+significant, the former test indicates that IESE and IMD rankings
+capture broadly similar dimensions.
 
 \subsection{Expert SCD ratings are stable in
 time}\label{expert-scd-ratings-are-stable-in-time}
@@ -589,14 +592,14 @@ correlation between HDI and the sum of IMD Technologies indicators (r =
 of IMD Structures indicators was r = 0.62, p = 0.058. The correlation
 between IMD Technologies and IMD Structures was r = 0.61, p = 0.063.
 
-Of note, the IMD Concerns sum significantly from normality (p = 0.018),
-unlike the other three IMD domains. Therefore, for associations
-involving the non-normally distributed IMD Concerns sum, Spearman
-correlations were used instead. Evidence of a correlation between HDI
-and IMD Concerns was found using Spearman's method (ρ = -0.71, p =
-0.02). On the other hand, there was no evidence for an association
-between Technologies and Concerns (ρ = -0.46, p = 0.184), nor for the
-association between Structures and Concerns (ρ = -0.57, p = 0.083).
+The IMD Concerns sum significantly from normality (p = 0.018), unlike
+the other three IMD domains. Therefore, for associations involving the
+non-normally distributed IMD Concerns sum, Spearman correlations were
+used instead. Evidence of a correlation between HDI and IMD Concerns was
+found using Spearman's method (ρ = -0.71, p = 0.02). On the other hand,
+there was no evidence for an association between Technologies and
+Concerns (ρ = -0.46, p = 0.184), nor for the association between
+Structures and Concerns (ρ = -0.57, p = 0.083).
 
 A plot of these potential correlation (Fig. 3) indicates confirms that
 IMD Concerns scores are not normally distributed, with an extremely low
@@ -615,10 +618,329 @@ shown).
 
 \end{figure}%
 
-\section{Discussions}\label{discussions}
+\subsection{QoL metrics do not fall into
+agreement}\label{qol-metrics-do-not-fall-into-agreement}
 
-More notably, a number of indices used by IESE are actually sourced from
-Numbeo.
+Another failure to support one of hypothese was noted when testing
+Pearson correlation between the USNW and Numbeo.com QoL metrics. In the
+global analysis, there was no statistical significance for an eventual
+correlation (r = 0.12, p = 0.614). To explore potential partial
+overlaps, Pearson correlation analysis was applied to all the possible
+combinations between the USNW QoL score and each of the eight Numbeo
+component indices. The only meaningful correaltion was the negative
+correlation between the USNW QoL score and Numbeo Pollution Index (r =
+-0.56, p = 0.014). Counterintutively, the USNW QoL score exhibited
+significant positive correlation with the Numbeo Cost of Living Index (r
+= 0.53, p = 0.021) and weak positive correlation with the Property Price
+to Income Ratio (r = 0.46, p = 0.05). No other Numbeo components
+displayed strong or statistically significant associations with the USNW
+QoL score. These results, as well as the corespnding graphic
+representation (Fig. 4) suggest that, while some aspects of local
+affordability and environmental quality relate to the USNW metric,
+broader alignment between the two systems remains limited.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/usnwvsnumbeoplot-1.pdf}}
+
+}
+
+\caption{Weak correlation between USNW and Numbeo QoL scores}
+
+\end{figure}%
+
+\subsection{Data does not support a correlation between SCD metrics and
+QoL
+metrics}\label{data-does-not-support-a-correlation-between-scd-metrics-and-qol-metrics}
+
+The normality of the main QoL and SCD indicators was assessed using
+Shapiro-Wilk tests. None of the tests rejected the null hypothesis of
+normality (data not shown), justifying the use of Pearson correlation
+for subsequent analyses. The correlation between USNW QoL scores and the
+IMD 2023 SCD ranking was moderate and negative (r = -0.53, p = 0.118),
+but did not reach statistical significance. A similar negative trend was
+observed between USNW QoL scores and the IESE 2024 ranking (r = -0.43, p
+= 0.068). In contrast, correlations between the Numbeo QoL score and
+either SCD ranking were weak (r = 0.19 and r = 0.1, respectively) and
+nonsignificant (p = 0.608 and p = 0.687, respectively).
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/qolscdplot-1.pdf}}
+
+}
+
+\caption{Weak associations between SCD ranks and QoL scores. Rank axes
+are inverted.}
+
+\end{figure}%
+
+A plot of the above-analyzed correlation (Fig. 5) confirms the
+hypothesized trend towards better QoL rankings for cities with stronger
+SCD polices, when the QoL is assessed by USNW. Paradoxically, the minute
+effect that SCD policies appear to have on Numbeo.com rankings manifest
+as trends towards positive correlation, that is, stronger SCD policies
+associate with worse QoL Numbeo.com rankings. In the next section, we
+will investigate which dimensions of Numbeo.com or IMD composite scores
+are best associated with the marginal effects uncovered here.
+
+\subsection{Numbeo.com QoL metrics are negatively correlated with most
+technology-related SCD
+items}\label{numbeo.com-qol-metrics-are-negatively-correlated-with-most-technology-related-scd-items}
+
+We have seen that IMD-assessed SCD exhibit a trend towards association
+with better QoL rankings, when originating from USNW. In this section,
+we attempt to uncover which of the IMD domains coordinates best with
+improved QoL. The general trands are illustrated in Fig. 6.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/imddomainsvsqolplot-1.pdf}}
+
+}
+
+\caption{Associations between SCD domain scores, as evaluated by IMD,
+and QoL scores}
+
+\end{figure}%
+
+As shown earlier, the sum of IMD Concerns indicators deviates
+significantly from normality. Accordingly, correlations involving it
+were assessed using Spearman's method, while the other IMD domains were
+tested with Pearson's method.
+
+Among USNW-related associations, a moderate positive correlation was
+found with sum of IMD Structures (r = 0.57, p = 0.086) and with HDI (r =
+0.62, p = 0.057), although neither reached statistical significance. The
+correlation between USNW QoL and sum of IMD Technologies was near zero
+(r = 0.06, p = 0.863), and the Spearman correlation with sum IMD
+Concerns was weak (ρ = -0.53, p = 0.118). Correlation analysis between
+the USNW QoL score and the various items listed under IMD Structures
+reveals that the better-asociated items are not necessarily those that
+we normally associate with SCD, especially within the US/NIST paradigm.
+For example, the item that best predicts a good USNW QoL score is the
+availability of bars and museums (Table 1).
+
+\begin{longtable}[]{@{}lrr@{}}
+\toprule\noalign{}
+IMD Structures component & Pearson r & p-value \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Cultural activities (shows, bars, and museums) are satisfactory & 0.771
+& 0.009 \\
+Minorities feel welcome & 0.721 & 0.019 \\
+Air pollution is not a problem & 0.721 & 0.019 \\
+Green spaces are satisfactory & 0.587 & 0.074 \\
+Lifelong learning opportunities are provided by local institutions &
+0.538 & 0.108 \\
+\end{longtable}
+
+For Numbeo QoL, no meaningful correlations were observed with the sum of
+IMD Structures (r = -0.15, p = 0.675), HDI (r = 0.25, p = 0.494), or sum
+of IMD Concerns (ρ = -0.15, p = 0.674). A significant negative
+correlation was found between Numbeo QoL and sum of IMD Technologies (r
+= -0.77, p = 0.009). Moreover, a large number of items that fit the
+NIST/US definition of SCD, listed under IMD Technologies, are,
+unexpectedly, negatively correlated with Numbeo.co QoL scores.
+
+\begin{longtable}[]{@{}lrr@{}}
+\toprule\noalign{}
+IMD Technology component & Pearson r & p-value \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+CCTV cameras has made residents feel safer & -0.861 & 0.001 \\
+Online services provided by the city has made it easier to start a new
+business & -0.807 & 0.005 \\
+Car-sharing Apps have reduced congestion & -0.799 & 0.006 \\
+Free public wifi has improved access to city services & -0.754 &
+0.012 \\
+Online scheduling and ticket sales has made public transport easier to
+use & -0.751 & 0.012 \\
+The city provides information on traffic congestion through mobile
+phones & -0.737 & 0.015 \\
+Bicycle hiring has reduced congestion & -0.734 & 0.016 \\
+Processing Identification Documents online has reduced waiting times &
+-0.728 & 0.017 \\
+Online public access to city finances has reduced corruption & -0.712 &
+0.021 \\
+Apps that direct you to an available parking space have reduced journey
+time & -0.703 & 0.023 \\
+An online platform where residents can propose ideas has improved city
+life & -0.686 & 0.029 \\
+Online reporting of city maintenance problems provides a speedy solution
+& -0.676 & 0.032 \\
+Online voting has increased participation & -0.628 & 0.052 \\
+IT skills are taught well in schools & -0.624 & 0.054 \\
+Online purchasing of tickets to shows and museums has made it easier to
+attend & -0.600 & 0.067 \\
+\end{longtable}
+
+These findings suggest a domain-specific relationship between QoL
+metrics and technological SCD dimensions, with technological dimensions
+showing a strong, negative association, particularly when assessed
+through Numbeo.
+
+\subsection{Several subdomains of Numbeo.com QoL metric negatively
+correlate with technology
+SCD}\label{several-subdomains-of-numbeo.com-qol-metric-negatively-correlate-with-technology-scd}
+
+Despite the unassuming lack of correlation with various other general
+metrics, Numbeo.com QoL metrics are solidly, and paradoxically
+negatively corelated with technology-related SCD policies, as measured
+by the IMD. In this section, we attempt to find which of the eight
+dimensions of Numbeo.com QoL assessment are more impactd by tchnology
+SCD policies. General trends may be visualized in Fig. 7.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{smartcities_files/figure-pdf/imdtechvsnumbeoplot-1.pdf}}
+
+}
+
+\caption{Associations between Numbeo.com QoL domain scores, as evaluated
+by IMD, and sum of IMD Technologies indicators}
+
+\end{figure}%
+
+Normality of IMD Technologies Sum and all Numbeo component indices was
+assessed using Shapiro-Wilk tests and was not rejected for any variable
+(data not shown), justifying the use of Pearson correlations. Among the
+eight Numbeo domains, three showed statistically significant
+associations with IMD Technologies Sum: the Health Care Index (r =
+-0.76, p = 0.01), the Cost of Living Index (r = 0.65, p = 0.04), and the
+Property Price to Income Ratio (r = 0.66, p = 0.039). No other domain
+displayed a significant correlation with IMD Technologies (data not
+shown). In other words, Numbeo.com respondents rating QoL in high-tech
+cities are negatively affected by increased cost of living, excessive
+real estates prices by comparison with incomes, and reduced access to
+quality healthcare.
+
+\subsection{Multivariate linear regression models for the contribution
+of various QoL components to the technology-associated
+dissatisfaction}\label{multivariate-linear-regression-models-for-the-contribution-of-various-qol-components-to-the-technology-associated-dissatisfaction}
+
+A multiple linear regression model was tested to predict IMD
+Technologies Sum based on the three Numbeo dimensions shown earlier to
+best correlate with it, namely Health Care Index, Property Price to
+Income Ratio, and Cost of Living Index. The model showed a moderate fit
+(adjusted R² = 0.608, p = NA). Among the predictors, only the Health
+Care Index remained statistically significant (β = -19.38, p = 0.043),
+while Property Price to Income Ratio (β = 20.5, p = 0.245) and Cost of
+Living Index (β = -2.57, p = 0.656) were not. Residuals passed tests for
+global normality (Jarque-Bera p = 0.502) and heteroskedasticity
+(Breusch-Pagan p = 0.655). No autocorrelation was detected
+(Durbin-Watson = 2.18, p = 0.7). However, Shapiro-Wilk test indicated
+residual non-normality (p = 0.036), and multicollinearity analysis
+revealed excessive inflation for Property Price to Income Ratio (VIF =
+5.18) and Cost of Living Index (VIF = 6.12).
+
+Given the lack of significance for the Cost of Living Index (p = 0.656)
+and its substantial contribution to multicollinearity (VIF = 6.12), we
+chose to drop this variable and pursue modling using the remaining two
+predictors.
+
+A second linear regression model was then estimated using only the
+Health Care Index and Property Price to Income Ratio as predictors. The
+model exhibited a strong fit (adjusted R² = 0.652, p = 0.01). The Health
+Care Index was a statistically significant predictor (β = -17.84, p =
+0.027), while Property Price to Income Ratio was marginally
+non-significant (β = 13.95, p = 0.094). Multicollinearity diagnostics
+confirmed acceptable VIF values for both predictors (VIF = 1.19 and 1.19
+respectively). Residual analysis revealed no significant autocorrelation
+(Durbin-Watson = 2.36, p = 0.678), no evidence of heteroskedasticity
+(Breusch-Pagan p = 0.43), and satisfactory global normality of residuals
+(Jarque-Bera p = 0.469). Additionally, the Shapiro-Wilk test for
+residuals was non-significant (p = 0.089), confirming normality.
+
+These results supported the selection of the two-predictor model as the
+more robust specification. They provide strong support for a linear
+relationship between improved IMD-evaluated SCD technologies and
+perceived impaired access to quality healthcare, as reported by
+Numbeo.com users. They also suggest a trend towards a second,
+independent, QoL dimension being affected by SCD technologies, namely
+housing costs.
+
+\section{Discussion}\label{discussion}
+
+In this study, we analyzed the correlations between smart city
+development (SCD) metrics and quality of life (QoL) outcomes. Urban
+development was assessed by two prestigious academic institutions, based
+on scores derived from dozens of semi-independent elements, producing
+rankings that have been republished for decades. The two SCD metrics
+demonstrated a high degree of similarity. However, these metrics focus
+on global rankings, generating very small samples. In contrast, QoL is a
+well-established concept, which could have allowed for the inclusion of
+a larger number of cities. Nonetheless, because QoL is a central theme
+in political debates and cultural identity, no unique, standardized
+definition exists, Unsurprisingly, the two QoL metrics used in this
+study are not fully aligned.
+
+A large part of the SCD metrics analyzed were not correlated with QoL
+metrics. While in the case of the IESE metrics, such findings could be
+attributed to smaller sample sizes, in the case of the IMD metrics we
+described variable, occasionally very strong, correlations at domain-
+and item-level with QoL metrics. Specifically, QoL as measured by USNW
+criteria was positively correlated with the city-level estimated HDI and
+with the IMD Structures indicator. The latter correlation could largely
+be explained by the presence of green spaces and of theaters, museums,
+and bars. By contrast, quality of life as estimated by USNW appeared to
+be independent of the IMD Technologies index. The opposite situation was
+observed for QoL life as estimated by the Numbeo algorithm. In this
+case, the IMD Technologies index was the only SCD metric that correlated
+with the QoL score. Surprisingly, the correlation was inverse (more
+technology with poorer QoL), and could not be attributed to any specific
+technological item. Two components among the eight included in the
+Numbeo score --- namely, the quality of healthcare services and the
+housing cost-to-income ratio --- largely explained this negative
+correlation.
+
+In conclusion, this study provides evidence that SCD can enhance QoL,
+but also identifies contexts where this link does not translate into
+perceived improvements for residents. Given the cross-sectional design,
+no claims about temporal precedence or causality can be made.
+Specifically, it appeears that SCD may primarily benefit younger,
+healthier residents with discretionary income, while disadvantaging
+renters and individuals with chronic illnesses.
+
+A redefinition of urban development objectives, beyond current IESE and
+IMD frameworks, may be necessary. For example, several indices used by
+IESE are based on data from Numbeo. Since Numbeo captures perceived QoL
+--- the outcome rather than the exposure --- it appears that the IESE
+metrics reflect not just the development process, but tend to favor
+local governments that succeed in achieving their targets, regardless of
+the methods employed.
+
+This study naturally has some limitations. First, most of the negative
+results are likely to be type II errors, given the extremely small
+sample size. However, expanding the sample to a significantly larger
+volume is unlikely, as few municipalities possess the motivation,
+vision, and funding necessary for effective SCD.
+
+Another limitation is the lack of optimal data on QoL. Alternative
+metrics exist, but they were not accessible during the drafting of this
+analysis. Nevertheless, it should be noted that in most rankings, the
+QoL situation tends to align more closely with what is reflected by
+Numbeo, where New York City ranks well below Denver. Even the USNW
+rankings have historically placed New York at a QoL level that is, at
+best, mediocre compared to Denver, which is historically considered a
+Top 10 city for QoL (Sparks
+(\citeproc{ref-SparksNYCisnAmerica2019}{2019})).
+
+During the research for this paper, we did not come across any
+publication that applied quantitative methods to analyze the
+relationship between SCD and QoL in the Western world. This gap may be
+explained by the tautological nature of the subject, with the IESE and
+IMD metrics serving as clear examples of confusion between mechanisms
+and objectives. For instance, the number of museums may be seen more as
+a goal --- a component of QoL --- rather than a lever for achieving the
+goal, that is, a tool of SCD. Even so, this paper offers a good starting
+point for critically evaluating what we currently call SCD, what opinion
+leaders consider necessary for SCD progress, and what remains to be done
+to achieve a more inclusive SCD.
 
 \appendix
 
@@ -1428,6 +1750,11 @@ Martin Burns, Sokwoo Rhee, and Chris Greer. 2022. {``Smart Cities and
 Communities: {A} Key Performance Indicators Framework.''} \emph{NIST
 Special Publication}, February.
 \url{https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1900-206.pdf}.
+
+\bibitem[\citeproctext]{ref-SparksNYCisnAmerica2019}
+Sparks, Hannah. 2019. {``{NYC} Isn't {America}'s Best Place to Live --
+and It's Not Even Close,''} April 10, 2019.
+\url{https://nypost.com/2019/04/10/nyc-isnt-one-of-americas-best-places-to-live-and-its-not-even-close/}.
 
 \bibitem[\citeproctext]{ref-StubingerUnderstandingSmartCity2020}
 Stübinger, Johannes, and Lucas Schneider. 2020. {``Understanding {Smart
